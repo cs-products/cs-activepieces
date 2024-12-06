@@ -3,8 +3,11 @@ import { httpRequest } from "./httpRequestSender";
 
 
 
-export const getAuthToken = async(auth:{username:string,password:string}) => {
-    if (auth?.username && auth?.password){
+export const getAuthToken = async(auth:any) => {
+    const {username , password} = auth;
+    if(!username || !password){
+        return ''
+    }else{
         const baseUrl = 'https://unifiedplatform.clicsoft.dev'
         const url = baseUrl + '/auth/authenticate';
         const headers = { Accept: 'application/json' }
@@ -14,8 +17,5 @@ export const getAuthToken = async(auth:{username:string,password:string}) => {
         } else {
             return ''
         }
-    }else{
-        return ''
     }
-   
 }

@@ -2,6 +2,7 @@
 import { createPiece, PieceAuth, Property } from "@activepieces/pieces-framework";
 import { getHotelConfig } from "./lib/actions/get-hotel-config";
 import { getAuthToken } from "./lib/common/getAuthToken";
+import { getActions } from "./lib/actions/get-actions";
 
 export const omnyLinkAuth = PieceAuth.BasicAuth({
   description: 'Enter your username and password',
@@ -43,7 +44,7 @@ export const omnyLink = createPiece({
   minimumSupportedRelease: '0.36.1',
   logoUrl: "https://cdn.activepieces.com/pieces/omnyLink.png",
   authors: [],
-  actions: [getHotelConfig],
+  actions: [getHotelConfig, getActions],
   triggers: [],
 });
 
