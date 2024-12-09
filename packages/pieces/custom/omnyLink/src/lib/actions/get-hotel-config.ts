@@ -41,7 +41,7 @@ export const getHotelConfig = createAction({
       return { message: 'unauthorised' }
     }
     const { connect, reqParams, ref } = context.propsValue;
-    const baseUrl = 'https://unifiedplatform.clicsoft.dev'
+    const baseUrl = 'http://192.168.19.20:4000'
     const url = baseUrl + '/hotelInfo';
     const headers = { Accept: 'application/json', connectWith: connect, reqParams: reqParams, ref: ref, Authorization: `Bearer ${token}` }
     const httpResponse = await httpRequest({ method: HttpMethod.GET, url, timeout: 5000, headers })

@@ -4,17 +4,26 @@ import { getHotelConfig } from "./lib/actions/get-hotel-config";
 import { getAuthToken } from "./lib/common/getAuthToken";
 import { getActions } from "./lib/actions/get-actions";
 
-export const omnyLinkAuth = PieceAuth.BasicAuth({
-  description: 'Enter your username and password',
+export const omnyLinkAuth = PieceAuth.CustomAuth({
+  description: 'Enter authentication details',
+  props: {
+    username: Property.ShortText({
+      displayName: 'Username',
+      description: 'This is the Username you use to log into the server',
+      required: true,
+    }),
+    password: PieceAuth.SecretText({
+      displayName: 'Password',
+      description: 'This is the password you use to log into the server',
+      required: true,
+    }),
+    baseUrl: Property.LongText({
+      displayName: 'Base Url',
+      description: 'This is the Base Url',
+      required: true,
+    }),
+  },
   required: true,
-  username: {
-    displayName: 'Username',
-    description: 'Enter your username',
-  },
-  password: {
-    displayName: 'Password',
-    description: 'Enter your password',
-  },
   // Optional Validation
   validate: async ({ auth }) => {
     if (auth) {

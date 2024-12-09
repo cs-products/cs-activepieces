@@ -4,6 +4,7 @@ import { httpRequest } from "./httpRequestSender";
 
 
 export const getAuthToken = async(auth:any) => {
+    console.log("auth", auth)
     const {username , password} = auth;
     if(!username || !password){
         return ''
