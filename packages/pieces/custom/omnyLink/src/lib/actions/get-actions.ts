@@ -148,91 +148,59 @@ export const getActions = createAction({
     if (!token) {
       return { message: 'unauthorised' }
     }
-    if (action?.endpoint) {
-      const baseUrl = context.auth?.baseUrl
+    if (action?.endPoint) {
+      const baseUrl = 'https://unifiedplatform.clicsoft.dev'
+      // context.auth?.baseUrl
       // 'http://192.168.19.20:4000'
       // context.auth?.baseUrl
-      const url = baseUrl + action?.endpoint;
-      // if (!body) {
-      //   return 'Send Body From Catch Webhook';
-      // }
+      const url = baseUrl + action?.endPoint;
+      if (!body) {
+        return 'Send Body From Catch Webhook';
+      }
 
-      // const reqData = body["data"];
-      // const reqHeaders = reqData["headers"];
-      // const reqQueryParams = reqData["queryParams"];
-      // if (!reqHeaders) {
-      //   return { message: "Send ReqHeaders in headers", data: reqData };
-      // }
+      const reqData = body["data"];
+      const reqHeaders = reqData["headers"];
+      const reqQueryParams = reqData["queryParams"];
+      if (!reqHeaders) {
+        return { message: "Send ReqHeaders in headers", data: reqData };
+      }
 
-      // const { ref, reqparams } = reqHeaders;
+      const { ref, reqparams } = reqHeaders;
 
-      // if (!ref || !reqparams) {
-      //   return { message: "Send Proper Ref and reqParams in Headers", data: reqHeaders };
-      // }
-      // const headers = {
-      //   Accept: 'application/json',
-      //   connectWith: connectorCode,
-      //   reqParams: reqparams,
-      //   ref: ref,
-      //   Authorization: `Bearer ${token}`,
-      // };
+      if (!ref || !reqparams) {
+        return { message: "Send Proper Ref and reqParams in Headers", data: reqHeaders };
+      }
+      const headers = {
+        Accept: 'application/json',
+        connectWith: connectorCode,
+        reqParams: reqparams,
+        ref: ref,
+        Authorization: `Bearer ${token}`,
+      };
 
-      // const method = getMethod(action.method);
+      const method = getMethod(action.method);
 
-      // if (!method) {
-      //   return { message: "Method is Not Proper", data: action };
-      // }
-      // let httpResponse;
-      // const httpRequestOptions: any = {
-      //   method: method,
-      //   url,
-      //   timeout: 5000,
-      //   headers,
-      // };
+      if (!method) {
+        return { message: "Method is Not Proper", data: action };
+      }
+      let httpResponse;
+      const httpRequestOptions: any = {
+        method: method,
+        url,
+        timeout: 5000,
+        headers,
+      };
 
-      // if (reqQueryParams && Object.keys(reqQueryParams).length) {
-      //   httpRequestOptions.queryParams = reqQueryParams;
-      // }
+      if (reqQueryParams && Object.keys(reqQueryParams).length) {
+        httpRequestOptions.queryParams = reqQueryParams;
+      }
 
-      // httpResponse = await httpRequest(httpRequestOptions);
+      httpResponse = await httpRequest(httpRequestOptions);
 
-      // if (httpResponse?.body) {
-      //   return httpResponse.body;
-      // } else {
-      //   return { message: "Send ReqHeaders in headers", data: reqData };
-      // }
-
-      if (body) {
-        const reqHeaders = body["data"]["headers"]
-        const reqQueryParams = body["data"]['queryParams']
-        if (reqHeaders) {
-          const { ref, reqparams } = reqHeaders
-          if (ref && reqparams) {
-            const headers = { Accept: 'application/json', connectWith: connectorCode, reqParams: reqparams, ref: ref, Authorization: `Bearer ${token}` }
-            let httpResponse
-            const method = getMethod(action.method)
-            if (method) {
-              if (reqQueryParams && Object.keys(reqQueryParams).length) {
-                httpResponse = await httpRequest({ method: method, url, timeout: 5000, headers, queryParams: reqQueryParams })
-              } else {
-                httpResponse = await httpRequest({ method: method, url, timeout: 5000, headers })
-              }
-              if (httpResponse?.body) {
-                return httpResponse?.body
-              } else {
-                return { message: "Send ReqHeaders in headers", data: body["data"] }
-              }
-            } else {
-              return { message: "Method is Not Proper", data: action }
-            }
-          } else {
-            return { message: "Send Proper Ref and reqParams in Headers", data: reqHeaders }
-          }
-        } else {
-          return { message: "Send ReqHeaders in headers", data: body["data"] }
-        }
+      if (httpResponse?.body) {
+        return httpResponse.body;
       } else {
-        return 'Send Body From Catch Webhook'
+        return { message: "Send ReqHeaders in headers", data: reqData };
       }
     } else {
       return 'EndPoint Not Found'
