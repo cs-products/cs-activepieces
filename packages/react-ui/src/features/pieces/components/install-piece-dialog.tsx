@@ -1,4 +1,3 @@
-
 import { typeboxResolver } from '@hookform/resolvers/typebox';
 import { Static, Type } from '@sinclair/typebox';
 import { useMutation } from '@tanstack/react-query';
@@ -152,7 +151,9 @@ const InstallPieceDialog = ({
         switch (error.response?.status) {
           case HttpStatusCode.Conflict:
             form.setError('root.serverError', {
-              message: t('Piece already installed.'),
+              message: t(
+                'A piece with this name and version is already installed. Please update the version number in package.json and try again.',
+              ),
             });
             break;
           default:
