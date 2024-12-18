@@ -1,9 +1,8 @@
-import { createAction, DynamicProp, DynamicPropsValue, Property, StoreScope } from '@activepieces/pieces-framework';
-import { getAuthToken } from '../common/getAuthToken';
-import { HttpMethod } from '@activepieces/pieces-common';
-import { httpRequest } from '../common/httpRequestSender';
+import { createAction, DynamicPropsValue, Property } from '@activepieces/pieces-framework';
 import { getConnectors } from '../common/getConnectors';
+import { getAuthToken } from '../common/getAuthToken';
 import { getMethod } from '../common/getMethod';
+import { httpRequest } from '../common/httpRequestSender';
 
 export const getActions = createAction({
   // auth: check https://www.activepieces.com/docs/developers/piece-reference/authentication,
@@ -14,11 +13,16 @@ export const getActions = createAction({
     connectorType: Property.Dropdown({
       displayName: 'Connector Type',
       description: 'Select a connector type from the list.',
-      refreshers: [],
+      refreshers: ['auth'],
       required: true,
       defaultValue: '',
-      options: async () => {
-        const connectorResponse = await getConnectors({ isActive: true });
+      options: async (propsValue) => {
+        const { auth }: any = propsValue;
+        const { baseUrl } = auth;
+        if (!baseUrl) {
+          return { options: [] };
+        }
+        const connectorResponse = await getConnectors({ isActive: true }, baseUrl);
 
         if (!connectorResponse || !Array.isArray(connectorResponse)) {
           throw new Error('Data is missing or invalid');
@@ -32,7 +36,7 @@ export const getActions = createAction({
         return {
           options: uniqueConnectors.map((connectorType: string) => ({
             label: connectorType,
-            value: connectorType,
+            value: [connectorType, connectorResponse],
           })),
         };
       },
@@ -45,11 +49,12 @@ export const getActions = createAction({
       required: true,
       defaultValue: '',
       options: async (propsValue) => {
-        const { connectorType } = propsValue;
+        const { connectorType }: any = propsValue;
         if (!connectorType) {
           return { options: [] };
         }
-        const connectorResponse = await getConnectors({ isActive: true, connectorType });
+        const connectorTypeData = connectorType[0]
+        const connectorResponse = connectorType[1].filter((connector: any) => connector?.connectorType === connectorTypeData);
 
         if (!connectorResponse || !Array.isArray(connectorResponse)) {
           throw new Error('Data is missing or invalid');
@@ -64,7 +69,7 @@ export const getActions = createAction({
         return {
           options: uniqueConnectors.map((item: { connectorCode: string }) => ({
             label: item.connectorCode,
-            value: item.connectorCode,
+            value: [item.connectorCode, connectorResponse],
           })),
         };
       },
@@ -77,15 +82,12 @@ export const getActions = createAction({
       required: true,
       defaultValue: '',
       options: async (propsValue) => {
-        console.log("propsValue action", JSON.stringify(propsValue))
-
-        const { connectorCode } = propsValue;
-
+        const { connectorCode }: any = propsValue;
         if (!connectorCode) {
           return { options: [] };
         }
-
-        const connectorResponse = await getConnectors({ isActive: true, connectorCode });
+        const connectorCodeData = connectorCode[0]
+        const connectorResponse = connectorCode[1].filter((connector: any) => connector?.connectorCode === connectorCodeData);
 
         if (!connectorResponse || !Array.isArray(connectorResponse)) {
           throw new Error('Data is missing or invalid');
@@ -142,17 +144,14 @@ export const getActions = createAction({
     }),
   },
   async run(context: any) {
-    const { connectorType, connectorCode, action, body } = context.propsValue
-    console.log("connectorType, connectorCode, action,", connectorType, connectorCode, action, context.auth)
-    const token = await getAuthToken(context.auth)
+    const { action, body, auth } = context.propsValue
+    const { connectorCode } = action;
+    const { baseUrl } = auth;
+    const token = await getAuthToken(context.auth, baseUrl)
     if (!token) {
       return { message: 'unauthorised' }
     }
     if (action?.endPoint) {
-      const baseUrl = 'https://unifiedplatform.clicsoft.dev'
-      // context.auth?.baseUrl
-      // 'http://192.168.19.20:4000'
-      // context.auth?.baseUrl
       const url = baseUrl + action?.endPoint;
       if (!body) {
         return 'Send Body From Catch Webhook';

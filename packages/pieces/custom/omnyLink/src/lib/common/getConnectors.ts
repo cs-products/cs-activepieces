@@ -1,15 +1,15 @@
 import { HttpMethod } from "@activepieces/pieces-common";
 import { httpRequest } from "./httpRequestSender";
+// import { asyncStorage } from "./storage";
 
 
 
-export const getConnectors = async (data: any) => {
+export const getConnectors = async (data: any, baseUrl: any) => {
+
     const { connectorType, connectorCode, isActive = false, author } = data
 
-    const baseUrl = 'https://unifiedplatform.clicsoft.dev'
-    // 'http://192.168.19.20:4000';
     let url = baseUrl + '/connectivity' + `?isActive=${isActive}`;
-    if (connectorType){
+    if (connectorType) {
         url = url + `&connectorType=${connectorType}`
     }
     if (connectorCode) {

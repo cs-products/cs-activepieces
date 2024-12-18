@@ -26,18 +26,18 @@ export const omnyLinkAuth = PieceAuth.CustomAuth({
   // Optional Validation
   validate: async ({ auth }) => {
     if (auth) {
-      const token = await getAuthToken(auth)
-      if (token){
+      const token = await getAuthToken(auth, auth?.baseUrl)
+      if (token) {
         return {
           valid: true,
-        };
-      }else{
+        }
+      } else {
         return {
           valid: false,
           error: ""
         }
       }
-    }else{
+    } else {
       return {
         valid: false,
         error: ""
