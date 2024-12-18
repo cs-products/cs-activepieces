@@ -1,7 +1,8 @@
 import { httpClient, HttpMethod, HttpRequest } from '@activepieces/pieces-common';
 import { createAction, DynamicPropsValue, Property } from '@activepieces/pieces-framework';
-import { MewsBody, MewsRequest, Service } from '../common/types';
-import { decode } from '../common/common';
+import { MewsRequest, Service } from '../common/types';
+import { checkIfAllRequiredParamsArePresent, createCredentialsParams, decode, transformRequest, transformCreateCompanyResponse } from '../common/commonFunctions';
+import { CREATE_COMPANY_OPTIONAL_PARAMS, CREATE_COMPANY_REQUIRED_PARAMS } from '../common/constants';
 
 export const createCompany = createAction({
   // auth: check https://www.activepieces.com/docs/developers/piece-reference/authentication,
@@ -71,116 +72,85 @@ export const createCompany = createAction({
   },
 
   async run(context) {
+    try{
+      console.log("123".repeat(120));
+      const { body, headers } = context.propsValue;
+      const reqBody: any = headers?.["reqparams"];
 
-    const { body } = context.propsValue;
-
-    if (!body) {
-      return;
-    }
-  
-
-    const reqBody = body?.['data']?.['body'];
-    console.log(JSON.stringify(reqBody));
-
-    if (!reqBody) {
-      throw new Error('Missing required data');
-    }
-
-    const decodedObject = await decode(reqBody.data);
-    const mewsBody:MewsBody = reqBody.body
-    const data: MewsRequest = decodedObject;
-    const creds = data?.['credentials'];
-    if (
-      !data?.url ||
-      !creds?.accessToken ||
-      !creds?.clientToken ||
-      !creds?.client
-    ) {
-      throw new Error('Missing required data1');
-    }
-
-    const apiKeysToBody : Record<string, any> = {
-      // Required Parameters.
-      clienttoken: "ClientToken",
-      accesstoken: "AccessToken",
-      client: "Client",
-      name: "Name",
-      options: "Options",
-      // Optional Parameters.
-      chainid: "ChainId",
-      mothercompanyid: "MotherCompanyId",
-      invoicingemail: "InvoicingEmail",
-      websiteurl: "WebsiteUrl",
-      invoicedueinterval: "InvoiceDueInterval",
-      creditrating: "CreditRating",
-      department: "Department",
-      dunsnumber: "DunsNumber",
-      referenceidentifier: "ReferenceIdentifier",
-      accountingcode: "AccountingCode",
-      additionaltaxidentifier: "AdditionalTaxIdentifier",
-      billingcode: "BillingCode",
-      contact: "Contact",
-      contactperson: "ContactPerson",
-      identifier: "Identifier",
-      iata: "Iata",
-      notes: "Notes",
-      taxidentifier: "TaxIdentifier",
-      telephone: "Telephone",
-      address: "Address",
-      externalidentifier: "ExternalIdentifier"
-    }
-  
-
-    const credentailsObject = Object.entries(creds).reduce<Record<string, any>>((acc,[key,val])=> {
-      let mewsKey :string;
-      if(Object.keys(apiKeysToBody).includes(key)){
-        mewsKey = apiKeysToBody[key] || "";
-      } else {
-        mewsKey = key ;
+      if (!reqBody) {
+        return {
+          status: 400,
+          message: "Bad Request"
+        }
       }
-      acc[mewsKey] = val;
-      return acc;
-    }, {})
 
+      const decodedObject = await decode(reqBody);
+      const mewsBody:any = body?.["data"];
+      const data: MewsRequest = decodedObject;
+      const creds = data?.['credentials'];
+      console.log("333 creds \n",JSON.stringify(data));
 
-    const endpoint = `${data?.url}/api/connector/v1/companies/add`;
-    const createHttpPostRequest = (
-      url: string,
-      body: Record<string, any> = {}
-    ): HttpRequest => ({
-      method: 'POST' as HttpMethod,
-      url,
-      timeout: 5000,
-      body: {
-        ...credentailsObject,
-        ...body
-      },
-    });
-
-    // console.log("endpoint".repeat(1000));
-    const parsedBody = Object.entries(mewsBody).reduce<Record<string, any>>((acc,[key,val])=> {
-      let mewsKey :string;
-      if(Object.keys(apiKeysToBody).includes(key)){
-        mewsKey = apiKeysToBody[key] || "";
-      } else {
-        mewsKey = key ;
+      if (
+        !data?.url ||
+        !creds?.accessToken ||
+        !creds?.clientToken ||
+        !creds?.client
+      ) {
+        return {
+          status: 400,
+          message: "Bad Request"
+        }
       }
-      acc[mewsKey] = val;
-      return acc;
-    }, {})
 
-    console.log("parsedBody",JSON.stringify(parsedBody))
+      console.log("mews body", JSON.stringify(mewsBody));
 
-    try {
-      const request = createHttpPostRequest(endpoint, parsedBody);
-      return await httpClient.sendRequest<{
-        Services: Service
-      }>(request);
-    } catch(err: any){
-      //console.log("Error occured while adding payment",err);
-      return err?.response;
+      if(!checkIfAllRequiredParamsArePresent(mewsBody, CREATE_COMPANY_REQUIRED_PARAMS)){
+        return {
+          status: 400,
+          message: "Bad Request"
+        }
+      }
+
+    
+      const credentialsParams = createCredentialsParams(creds);
+
+      console.log("credentialsParams",JSON.stringify(credentialsParams));
+
+
+      const endpoint = `${data?.url}/api/connector/v1/companies/add`;
+      const createHttpPostRequest = (
+        url: string,
+        body: Record<string, any> = {}
+      ): HttpRequest => ({
+        method: 'POST' as HttpMethod,
+        url,
+        timeout: 5000,
+        body: {
+          ...credentialsParams,
+          ...body
+        },
+      });
+
+      const parsedBody = transformRequest(mewsBody, CREATE_COMPANY_REQUIRED_PARAMS, CREATE_COMPANY_OPTIONAL_PARAMS);
+
+      console.log("parsed body",JSON.stringify(parsedBody),JSON.stringify(credentialsParams));
+
+      try {
+        const request = createHttpPostRequest(endpoint, parsedBody);
+        const response =  await httpClient.sendRequest<{
+          Services: Service
+        }>(request);
+        console.log("response 123",JSON.stringify(response));
+        return transformCreateCompanyResponse(response);
+      } catch(err: any){
+        console.log("Error occured while adding company",JSON.stringify(err));
+        return err?.response;
+      }
+    } catch(err){
+      return {
+        status: 500,
+        message: "Some error occured"
+      }
     }
   }
 });
-
-// url: /api/connector/v1/payments/addAlternative

@@ -1,7 +1,8 @@
 import { httpClient, HttpMethod, HttpRequest } from '@activepieces/pieces-common';
 import { createAction, DynamicPropsValue, Property } from '@activepieces/pieces-framework';
 import { MewsBody, MewsRequest, Service } from '../common/types';
-import { decode } from '../common/common';
+import { checkIfAllRequiredParamsArePresent, createCredentialsParams, decode, transformCreateCompanyResponse, transformRequest, transformUpdateRequest } from '../common/commonFunctions';
+import { UPDATE_COMPANY_OPTIONAL_PARAMS, UPDATE_COMPANY_REQUIRED_PARAMS } from '../common/constants';
 
 export const updateCompany = createAction({
   // auth: check https://www.activepieces.com/docs/developers/piece-reference/authentication,
@@ -72,22 +73,27 @@ export const updateCompany = createAction({
 
   async run(context) {
 
-    const { body } = context.propsValue;
+    const { body, headers } = context.propsValue;
 
     if (!body) {
-      return;
+      return {
+        status: 400,
+        message: "No body provided"
+      }
     }
   
 
-    const reqBody = body?.['data']?.['body'];
-    console.log(JSON.stringify(reqBody));
+    const reqBody: any = headers["reqparams"];
 
     if (!reqBody) {
-      throw new Error('Missing required data');
+      return {
+        status: 400,
+        message: "No auth details"
+      }
     }
 
-    const decodedObject = await decode(reqBody.data);
-    const mewsBody:MewsBody = reqBody.body
+    const decodedObject = await decode(reqBody);
+    const mewsBody:any = body?.["data"]
     const data: MewsRequest = decodedObject;
     const creds = data?.['credentials'];
     if (
@@ -96,51 +102,20 @@ export const updateCompany = createAction({
       !creds?.clientToken ||
       !creds?.client
     ) {
-      throw new Error('Missing required data1');
-    }
-
-    const apiKeysToBody : Record<string, any> = {
-      // Required Parameters.
-        clienttoken: 'clientToken',
-        accesstoken: 'accessToken',
-        client: 'client',
-        chainid: 'chainId',
-        companyid: 'companyId',
-        name: 'Name',
-        mothercompanyid: 'MotherCompanyId',
-        invoicingemail: 'InvoicingEmail',
-        websiteurl: 'WebsiteUrl',
-        invoicedueinterval: 'InvoiceDueInterval',
-        options: 'Options',
-        creditrating: 'CreditRating',
-        department: 'Department',
-        dunsnumber: 'DunsNumber',
-        referenceidentifier: 'ReferenceIdentifier',
-        accountingcode: 'AccountingCode',
-        additionaltaxidentifier: 'AdditionalTaxIdentifier',
-        billingcode: 'BillingCode',
-        contact: 'Contact',
-        contactperson: 'ContactPerson',
-        identifier: 'Identifier',
-        iata: 'Iata',
-        notes: 'Notes',
-        taxidentifier: 'TaxIdentifier',
-        telephone: 'Telephone',
-        externalidentifier: 'ExternalIdentifier'      
-    }
-  
-
-    const credentailsObject = Object.entries(creds).reduce<Record<string, any>>((acc,[key,val])=> {
-      let mewsKey :string;
-      if(Object.keys(apiKeysToBody).includes(key)){
-        mewsKey = apiKeysToBody[key] || "";
-      } else {
-        mewsKey = key ;
+      return {
+        status: 400,
+        message: "Invalid auth details"
       }
-      acc[mewsKey] = val;
-      return acc;
-    }, {})
+    }
 
+    if(!checkIfAllRequiredParamsArePresent(mewsBody, UPDATE_COMPANY_REQUIRED_PARAMS)){
+      return {
+        status: 400,
+        message: "Missing required details details"
+      }
+    }
+
+    const credObject = createCredentialsParams(creds);
 
     const endpoint = `${data?.url}/api/connector/v1/companies/update`;
     const createHttpPostRequest = (
@@ -151,35 +126,32 @@ export const updateCompany = createAction({
       url,
       timeout: 5000,
       body: {
-        ...credentailsObject,
+        ...credObject,
         ...body
       },
     });
 
-    // console.log("endpoint".repeat(1000));
-    const parsedBody = Object.entries(mewsBody).reduce<Record<string, any>>((acc,[key,val])=> {
-      let mewsKey :string;
-      if(Object.keys(apiKeysToBody).includes(key)){
-        mewsKey = apiKeysToBody[key] || "";
-      } else {
-        mewsKey = key ;
-      }
-      acc[mewsKey] = val;
-      return acc;
-    }, {})
+    // console.log("endpoint".repeat(1000));+
+    const parsedBody = transformUpdateRequest(mewsBody, UPDATE_COMPANY_REQUIRED_PARAMS, UPDATE_COMPANY_OPTIONAL_PARAMS);
 
-    console.log("parsedBody",JSON.stringify(parsedBody))
+    console.log("parsedBody update",JSON.stringify(parsedBody), JSON.stringify(credObject));
 
     try {
       const request = createHttpPostRequest(endpoint, parsedBody);
-      return await httpClient.sendRequest<{
+      const response =  await httpClient.sendRequest<{
         Services: Service
       }>(request);
+      console.log("response",response);
+      return transformCreateCompanyResponse(response);
     } catch(err: any){
-      //console.log("Error occured while adding payment",err);
-      return err?.response;
+      console.log("Error occured while updating company",JSON.stringify(err));
+      return {
+        status: 500,
+        message: "Some error occured"
+      }
     }
   }
 });
 
 // url: /api/connector/v1/payments/addAlternative
+// 644c3891-2d7e-4eb5-9c36-b24a006596b9
