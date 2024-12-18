@@ -1,7 +1,7 @@
 {
-  "name": "pieces-omnyLink",
+  "name": "pieces-omnylink",
   "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/pieces/custom/omnyLink/src",
+  "sourceRoot": "packages/pieces/custom/omnylink/src",
   "projectType": "library",
   "release": {
     "version": {
@@ -19,12 +19,12 @@
         "{options.outputPath}"
       ],
       "options": {
-        "outputPath": "dist/packages/pieces/custom/omnyLink",
-        "tsConfig": "packages/pieces/custom/omnyLink/tsconfig.lib.json",
-        "packageJson": "packages/pieces/custom/omnyLink/package.json",
-        "main": "packages/pieces/custom/omnyLink/src/index.ts",
+        "outputPath": "dist/packages/pieces/custom/omnylink",
+        "tsConfig": "packages/pieces/custom/omnylink/tsconfig.lib.json",
+        "packageJson": "packages/pieces/custom/omnylink/package.json",
+        "main": "packages/pieces/custom/omnylink/src/index.ts",
         "assets": [
-          "packages/pieces/custom/omnyLink/*.md"
+          "packages/pieces/custom/omnylink/*.md"
         ],
         "buildableProjectDepsInPackageJsonType": "dependencies",
         "updateBuildableProjectDepsInPackageJson": true

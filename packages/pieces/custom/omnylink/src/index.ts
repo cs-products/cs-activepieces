@@ -1,7 +1,9 @@
 
+
 import { createPiece, PieceAuth, Property } from "@activepieces/pieces-framework";
 import { getAuthToken } from "./lib/common/getAuthToken";
 import { getActions } from "./lib/actions/get-actions";
+
 
 export const omnyLinkAuth = PieceAuth.CustomAuth({
   description: 'Enter authentication details',
@@ -46,14 +48,14 @@ export const omnyLinkAuth = PieceAuth.CustomAuth({
   },
 })
 
-export const omnyLink = createPiece({
-  displayName: "Omnylink",
-  auth: omnyLinkAuth,
-  minimumSupportedRelease: '0.36.1',
-  logoUrl: "https://cdn.activepieces.com/pieces/omnyLink.png",
-  authors: [],
-  actions: [getActions],
-  triggers: [],
-});
-
-
+    
+  export const omnylink = createPiece({
+    displayName: "Omnylink",
+    auth: omnyLinkAuth,
+    minimumSupportedRelease: '0.36.1',
+    logoUrl: "https://cdn.activepieces.com/pieces/omnylink.png",
+    authors: [],
+    actions: [getActions],
+    triggers: [],
+  });
+    
