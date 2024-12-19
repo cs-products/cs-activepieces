@@ -220,6 +220,7 @@ type Address = {
 
 export type Company = {
   Id: string;
+  IsActive: boolean;
   siretNumber: string;
   vatNumber: string;
   Name: string;

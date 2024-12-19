@@ -124,6 +124,7 @@ export const searchcompany = createAction({
       const transformedCompanies = companyRes?.body?.['Companies'].map((company: Company) => {
         return {
           id: company.Id,
+          isActive: company?.IsActive,
           siretNumber: company?.siretNumber || '',
           vatNumber: company?.vatNumber || '',
           name: company?.Name,
