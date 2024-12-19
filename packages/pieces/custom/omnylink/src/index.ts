@@ -53,7 +53,7 @@ export const omnyLinkAuth = PieceAuth.CustomAuth({
     displayName: "Omnylink",
     auth: omnyLinkAuth,
     minimumSupportedRelease: '0.36.1',
-    logoUrl: "https://cdn.activepieces.com/pieces/omnylink.png",
+    logoUrl: "https://res.cloudinary.com/dvdj0gpzr/image/upload/c_thumb,w_200,g_face/v1734518741/gwc0zcb8cernp6qbl3ge.svg",
     authors: [],
     actions: [getActions],
     triggers: [],
