@@ -1,7 +1,7 @@
 import { httpClient, HttpMethod, HttpRequest } from '@activepieces/pieces-common';
 import { createAction, DynamicPropsValue, Property } from '@activepieces/pieces-framework';
 import { MewsBody, MewsRequest, Service } from '../common/types';
-import { decode } from '../common/common';
+import { createCredentialsParams, decode } from '../common/commonFunctions';
 
 export const deleteCompany = createAction({
   // auth: check https://www.activepieces.com/docs/developers/piece-reference/authentication,
@@ -70,54 +70,58 @@ export const deleteCompany = createAction({
     }),
   },
 
-  async run(context) {
+  async run(context :any) {
 
     const { body } = context.propsValue;
 
-    if (!body) {
-      return;
-    }
-  
+    console.log("body",JSON.stringify(body))
+    
 
-    const reqBody = body?.['data']?.['body'];
-    console.log(JSON.stringify(reqBody));
+    if (!body) {
+      return {
+        status: 400,
+        message: "No body provided"
+      }
+    }
+
+    const reqBody: any = body?.["data"]?.["body"];
 
     if (!reqBody) {
-      throw new Error('Missing required data');
+      return {
+        status: 400,
+        message: "No auth details"
+      }
     }
 
-    const decodedObject = await decode(reqBody.data);
-    const mewsBody:MewsBody = reqBody.body
+    console.log("reqbody");
+
+
+    const decodedObject = await decode(reqBody?.data);
+    const mewsBody:any = reqBody?.["body"];
     const data: MewsRequest = decodedObject;
     const creds = data?.['credentials'];
+    console.log("333 creds \n",JSON.stringify(data));
+
     if (
       !data?.url ||
       !creds?.accessToken ||
       !creds?.clientToken ||
       !creds?.client
     ) {
-      throw new Error('Missing required data1');
-    }
-
-    const apiKeysToBody : Record<string, any> = {
-      // Required Parameters.
-      clienttoken: "ClientToken",
-      accesstoken: "AccessToken",
-      client: "Client",
-      companyIds: "CompanyIds" // list
-    }
-  
-
-    const credentailsObject = Object.entries(creds).reduce<Record<string, any>>((acc,[key,val])=> {
-      let mewsKey :string;
-      if(Object.keys(apiKeysToBody).includes(key)){
-        mewsKey = apiKeysToBody[key] || "";
-      } else {
-        mewsKey = key ;
+      return {
+        status: 400,
+        message: "Invalid auth details"
       }
-      acc[mewsKey] = val;
-      return acc;
-    }, {})
+    }
+
+    if(!mewsBody?.id){
+      return {
+        status: 400,
+        message: "Missing Company id"
+      }
+    }
+
+    const credentailsObject = createCredentialsParams(creds);
 
 
     const endpoint = `${data?.url}/api/connector/v1/companies/delete`;
@@ -135,29 +139,35 @@ export const deleteCompany = createAction({
     });
 
     // console.log("endpoint".repeat(1000));
-    const parsedBody = Object.entries(mewsBody).reduce<Record<string, any>>((acc,[key,val])=> {
-      let mewsKey :string;
-      if(Object.keys(apiKeysToBody).includes(key)){
-        mewsKey = apiKeysToBody[key] || "";
-      } else {
-        mewsKey = key ;
-      }
-      acc[mewsKey] = val;
-      return acc;
-    }, {})
+    const parsedBody = {
+      "CompanyIds": [mewsBody.id]
+    }
 
     console.log("parsedBody delete",JSON.stringify(parsedBody))
 
     try {
       const request = createHttpPostRequest(endpoint, parsedBody);
-      return await httpClient.sendRequest<{
+      const response =  await httpClient.sendRequest<{
         Services: Service
       }>(request);
+      console.log("response delete",JSON.stringify(response));
+      if(response?.status == 200){
+        return {
+          status: 200,
+          message: "success"
+        }
+      } else {
+        return {
+          status: response?.status,
+          message: "Invalid company ID"
+        }
+      }
     } catch(err: any){
-      //console.log("Error occured while adding payment",err);
-      return err?.response;
+      console.log("Error occured while performing delete operation",err);
+      return {
+        status: 500,
+        message: "Some error occured!"
+      };
     }
   }
 });
-
-// url: /api/connector/v1/payments/addAlternative

@@ -71,9 +71,12 @@ export const updateCompany = createAction({
     }),
   },
 
-  async run(context) {
+  async run(context:any) {
 
-    const { body, headers } = context.propsValue;
+    const { body } = context.propsValue;
+
+    console.log("body",JSON.stringify(body))
+    
 
     if (!body) {
       return {
@@ -81,9 +84,8 @@ export const updateCompany = createAction({
         message: "No body provided"
       }
     }
-  
 
-    const reqBody: any = headers["reqparams"];
+    const reqBody: any = body?.["data"]?.["body"];
 
     if (!reqBody) {
       return {
@@ -92,10 +94,15 @@ export const updateCompany = createAction({
       }
     }
 
-    const decodedObject = await decode(reqBody);
-    const mewsBody:any = body?.["data"]
+    console.log("reqbody");
+
+
+    const decodedObject = await decode(reqBody?.data);
+    const mewsBody:any = reqBody?.["body"];
     const data: MewsRequest = decodedObject;
     const creds = data?.['credentials'];
+    console.log("333 creds \n",JSON.stringify(data));
+
     if (
       !data?.url ||
       !creds?.accessToken ||
@@ -131,7 +138,7 @@ export const updateCompany = createAction({
       },
     });
 
-    // console.log("endpoint".repeat(1000));+
+    // console.log("endpoint".repeat(1000));
     const parsedBody = transformUpdateRequest(mewsBody, UPDATE_COMPANY_REQUIRED_PARAMS, UPDATE_COMPANY_OPTIONAL_PARAMS);
 
     console.log("parsedBody update",JSON.stringify(parsedBody), JSON.stringify(credObject));
@@ -144,7 +151,7 @@ export const updateCompany = createAction({
       console.log("response",response);
       return transformCreateCompanyResponse(response);
     } catch(err: any){
-      console.log("Error occured while updating company",JSON.stringify(err));
+      console.log("Error occured while adding payment",JSON.stringify(err));
       return {
         status: 500,
         message: "Some error occured"
@@ -154,4 +161,3 @@ export const updateCompany = createAction({
 });
 
 // url: /api/connector/v1/payments/addAlternative
-// 644c3891-2d7e-4eb5-9c36-b24a006596b9
