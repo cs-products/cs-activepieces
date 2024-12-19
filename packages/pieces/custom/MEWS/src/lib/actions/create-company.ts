@@ -1,8 +1,8 @@
 import { httpClient, HttpMethod, HttpRequest } from '@activepieces/pieces-common';
 import { createAction, DynamicPropsValue, Property } from '@activepieces/pieces-framework';
 import { MewsRequest, Service } from '../common/types';
-import { checkIfAllRequiredParamsArePresent, createCredentialsParams, decode, transformRequest, transformCreateCompanyResponse } from '../common/commonFunctions';
 import { CREATE_COMPANY_OPTIONAL_PARAMS, CREATE_COMPANY_REQUIRED_PARAMS } from '../common/constants';
+import { checkIfAllRequiredParamsArePresent, createCredentialsParams, decode, transformCreateCompanyResponse, transformRequest } from '../common/commonFunctions';
 
 export const createCompany = createAction({
   // auth: check https://www.activepieces.com/docs/developers/piece-reference/authentication,
@@ -71,21 +71,34 @@ export const createCompany = createAction({
     }),
   },
 
-  async run(context) {
+  async run(context:any) {
     try{
-      console.log("123".repeat(120));
-      const { body, headers } = context.propsValue;
-      const reqBody: any = headers?.["reqparams"];
+      console.log("start create company");
+      const { body } = context.propsValue;
+
+      console.log("body",JSON.stringify(body))
+      
+
+      if (!body) {
+        return {
+          status: 400,
+          message: "No body provided"
+        }
+      }
+
+      const reqBody: any = body?.["data"]?.["body"];
 
       if (!reqBody) {
         return {
           status: 400,
-          message: "Bad Request"
+          message: "No auth details"
         }
       }
 
-      const decodedObject = await decode(reqBody);
-      const mewsBody:any = body?.["data"];
+      console.log("reqbody");
+
+      const decodedObject = await decode(reqBody?.data);
+      const mewsBody:any = reqBody?.["body"];
       const data: MewsRequest = decodedObject;
       const creds = data?.['credentials'];
       console.log("333 creds \n",JSON.stringify(data));
@@ -98,7 +111,7 @@ export const createCompany = createAction({
       ) {
         return {
           status: 400,
-          message: "Bad Request"
+          message: "Invalid auth details"
         }
       }
 
@@ -107,7 +120,7 @@ export const createCompany = createAction({
       if(!checkIfAllRequiredParamsArePresent(mewsBody, CREATE_COMPANY_REQUIRED_PARAMS)){
         return {
           status: 400,
-          message: "Bad Request"
+          message: "Missing required details details"
         }
       }
 
@@ -144,7 +157,10 @@ export const createCompany = createAction({
         return transformCreateCompanyResponse(response);
       } catch(err: any){
         console.log("Error occured while adding company",JSON.stringify(err));
-        return err?.response;
+        return {
+          status: 500,
+          message: "Some error occured"
+        }
       }
     } catch(err){
       return {
