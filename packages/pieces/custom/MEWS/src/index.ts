@@ -11,6 +11,9 @@ import { createCompany } from './lib/actions/create-company';
 import { deleteCompany } from './lib/actions/delete-company';
 import { updateCompany } from './lib/actions/update-company';
 import { searchcompany } from './lib/actions/search-company';
+import { addCharges } from './lib/actions/add-charges';
+import { updateCharges } from './lib/actions/update-charges';
+import { deleteCharges } from './lib/actions/delete-charges';
 
 export const MEWS = createPiece({
   displayName: 'MEWS',
@@ -30,7 +33,11 @@ export const MEWS = createPiece({
     addPayment,
     createCompany,
     deleteCompany,
-    updateCompany, searchcompany
+    updateCompany, 
+    searchcompany, 
+    addCharges, 
+    updateCharges, 
+    deleteCharges
   ],
   triggers: [],
 });

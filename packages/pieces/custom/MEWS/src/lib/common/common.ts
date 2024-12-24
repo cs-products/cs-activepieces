@@ -25,3 +25,16 @@ export const createHttpPostRequest = (
     ...additionalBody,
   },
 });
+
+export const mapKeys = (data: any, obj: any) => {
+  return Object.entries(data).reduce<Record<string, any>>((acc, [key, val]) => {
+    let mewsKey: string;
+    if (Object.keys(obj).includes(key)) {
+      mewsKey = obj[key] || "";
+    } else {
+      mewsKey = key;
+    }
+    acc[mewsKey] = val;
+    return acc;
+  }, {})
+}
