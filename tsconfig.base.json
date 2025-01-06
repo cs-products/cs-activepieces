@@ -347,6 +347,7 @@
       "@activepieces/piece-lead-connector": [
         "packages/pieces/community/lead-connector/src/index.ts"
       ],
+      "@activepieces/piece-lean": ["packages/pieces/custom/lean/src/index.ts"],
       "@activepieces/piece-line": [
         "packages/pieces/community/line/src/index.ts"
       ],
@@ -618,6 +619,9 @@
       ],
       "@activepieces/piece-text-helper": [
         "packages/pieces/community/text-helper/src/index.ts"
+      ],
+      "@activepieces/piece-thais": [
+        "packages/pieces/custom/thais/src/index.ts"
       ],
       "@activepieces/piece-tidycal": [
         "packages/pieces/community/tidycal/src/index.ts"
