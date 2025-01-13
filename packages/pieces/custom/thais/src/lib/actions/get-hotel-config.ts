@@ -98,7 +98,10 @@ export const getHotelConfig = createAction({
         console.log('Token from thais::::', token);
         return token;
       }
-     
+     return {
+       status: 401,
+       message: 'Invalid Credentials',
+     };
       //  // Call the getHotelConfig API with the token
       //  const response = await axios.get(
       //    `https://your-api.com/hotels/${hotelId}/config`,
