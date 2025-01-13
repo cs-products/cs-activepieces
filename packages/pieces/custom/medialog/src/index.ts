@@ -4,6 +4,8 @@ import { searchContact } from "./lib/actions/search-contact";
 import { updateContact } from "./lib/actions/update-contact";
 import { getHotelInfo } from "./lib/actions/get-hotel-info";
 import { getresourcecategories } from "./lib/actions/get-resource-categories";
+import { getResources } from "./lib/actions/get-resources";
+import { getPaymentModes } from "./lib/actions/get-payment-modes";
     
 export const medialog = createPiece({
   displayName: "Medialog",
@@ -11,7 +13,7 @@ export const medialog = createPiece({
   minimumSupportedRelease: '0.36.1',
   logoUrl: "https://cdn.activepieces.com/pieces/medialog.png",
   authors: [],
-  actions: [addContact, searchContact, updateContact, getHotelInfo, getresourcecategories],
+  actions: [addContact, searchContact, updateContact, getHotelInfo, getresourcecategories,getResources,getPaymentModes],
   triggers: [],
 });
     

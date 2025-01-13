@@ -499,3 +499,87 @@ export const createGateWayResponseForHotelInfo = (
     },
   };
 };
+
+export const transformArrivalDepartureResponse = (apiResponse: any) => {
+  return (
+    apiResponse?.body?.ServerReturn?.reduce((acc: any, currentRes: any) => {
+      acc[currentRes?.Id] = {
+        ...currentRes,
+      };
+      return acc;
+    }, {}) ?? {}
+  );
+};
+
+export const addRservationWhichAreNotPresent = (
+  newBookings: any,
+  currentBookings: any
+) => {
+  const currentBookingIds = Object.keys(currentBookings);
+  return (
+    Object.entries(newBookings)?.reduce(
+      (acc: any, [currentResId, currentRes]: [string, any]) => {
+        if (currentBookingIds.indexOf(currentRes?.Id) == -1) {
+          acc[currentResId] = {
+            ...currentRes,
+          };
+        }
+        return acc;
+      },
+      currentBookings
+    ) ?? currentBookings
+  );
+};
+
+export const createBookingDetailsAccordingToGateway = (allBookings: any) => {
+  return Object.entries(allBookings)?.reduce(
+    (acc: any, [bookingId, bookingDetails]: [string, any]) => {
+      const endDate = new Date(bookingDetails?.['Dates']?.DateEnd);
+      const endMonth =
+        endDate.getMonth() + 1 < 10
+          ? `0${endDate.getMonth() + 1}`
+          : `${endDate.getMonth() + 1}`;
+      const endDateString = `${endDate.getFullYear()}-${endMonth}-${endDate.getDate()}`;
+
+      const startDate = new Date(bookingDetails?.['Dates']?.DateStart);
+      const startMonth =
+        startDate.getMonth() + 1 < 10
+          ? `0${startDate.getMonth() + 1}`
+          : `${startDate.getMonth() + 1}`;
+      const startDateString = `${startDate.getFullYear()}-${startMonth}-${startDate.getDate()}`;
+
+      acc.push({
+        resource: bookingDetails?.['IdRoom'] || '',
+        resouceCateogry: bookingDetails?.['IdRoomType'] || '',
+        //@ts-expect-error TODO
+        status: RESERVATION_STATUS_ENUM[bookingDetails?.['Statut']] || '',
+        amount: calculateBookingAmt(bookingDetails),
+        purpose: '',
+        currency: bookingDetails?.['IdPays'] || '',
+        segment: bookingDetails?.['IdSegment']?.[0] || '',
+        arrivalDate: startDateString,
+        departureDate: endDateString,
+        reservationId: bookingId,
+      });
+      return acc;
+    },
+    []
+  );
+};
+
+export const createGetPaymentModesResponseAccordingToGateWay = (
+  apiResponse: any
+) => {
+  return {
+    paymentModes: apiResponse?.body?.ServerReturn?.reduce(
+      (acc: any, currentMode: any) => {
+        acc.push({
+          paymentModeCode: currentMode?.Libelle || '',
+          paymentModeLabel: currentMode?.Id || '',
+        });
+        return acc;
+      },
+      []
+    ),
+  };
+};
