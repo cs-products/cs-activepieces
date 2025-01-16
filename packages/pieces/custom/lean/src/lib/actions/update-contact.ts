@@ -1,22 +1,13 @@
 import { createAction, DynamicPropsValue, Property } from '@activepieces/pieces-framework';
-import { createHttpPostRequest, decode } from '../common/commonFunctions';
+import { checkIfAllRequiredParamsArePresent, createHttpPostRequest, decode, transformRequest } from '../common/commonFunctions';
 import { httpClient, HttpHeaders, HttpMethod } from '@activepieces/pieces-common';
-import { TAXES_KEYS_MAPPING } from '../common/constants';
+import { UPDATE_CONTACT_OPTIONAL_PARAMS, UPDATE_CONTACT_REQUIRED_PARAMS } from '../common/constants';
 
-interface Tax {
-  id: number;
-  description: string;
-  value: number;
-  active: boolean;
-  erp_code: string;
-  external_id: string | null;
-}
-
-export const getHotelConfig = createAction({
+export const updateContact = createAction({
   // auth: check https://www.activepieces.com/docs/developers/piece-reference/authentication,
-  name: 'getHotelConfig',
-  displayName: 'Get Hotel Config',
-  description: 'Get Hotel Config',
+  name: 'updateContact',
+  displayName: 'Update Contact',
+  description: 'Update Contact',
   props: {
       headers: Property.Object({
         displayName: 'Headers',
@@ -79,6 +70,8 @@ export const getHotelConfig = createAction({
     },
   async run(context) {
     const { body } = context.propsValue;
+        console.log('lean log body 0', JSON.stringify(body));
+    
         if (!body) {
           return {
             status: 400,
@@ -111,71 +104,58 @@ export const getHotelConfig = createAction({
             message: 'Wrong Credentials/url',
           };
         }
-    
         const loginUrl = `${data?.url}/api/auth/`;
         const loginBody = {
           username: creds?.['username'],
           password: creds?.['password'],
         };
+      
         const loginRequest = createHttpPostRequest("POST" as HttpMethod, loginUrl, {} as HttpHeaders, loginBody);
         const login = await httpClient.sendRequest(loginRequest);
         if (login && login?.body?.token) {
           const token = login?.body?.token;
-          console.log("lean token response:::::", token, data.hotelId, typeof data.hotelId);
-          // return {token, id: data.hotelId};
-           const headers: HttpHeaders = {
-             Authorization: `Token ${token}`,
-           };
-          const hotelEndPoint = `${data.url}/api/v2/hotels?id=${Number(data.hotelId)}`
-          const taxesEndPoint = `${data.url}/api/v2/taxes/`;
-          const hotelRequest = createHttpPostRequest(
-             'GET' as HttpMethod,
-             hotelEndPoint,
-             headers,
-             {}
-           );
-           const taxesRequest = createHttpPostRequest(
-             'GET' as HttpMethod,
-             taxesEndPoint,
-             headers,
-             {}
-           );
-          const hotelRes = await httpClient.sendRequest(hotelRequest);
-          const hotelInfo = hotelRes.body[0];
-          const taxesRes = await httpClient.sendRequest(taxesRequest);
-          const taxes = taxesRes.body.map((tax: any)=> {
-            return Object.keys(TAXES_KEYS_MAPPING).reduce(
-              (acc: Record<string, any>, key: string) => {
-                const newKey =
-                  TAXES_KEYS_MAPPING[key as keyof typeof TAXES_KEYS_MAPPING];
-                acc[newKey] = tax[key];
-                return acc;
-              },
-              {}
-            );
-          })
-          const transformedData = {
-            hotel: {
-              hotelCode: hotelInfo.hotel_code || null,
-              name: hotelInfo.name || null,
-              language: hotelInfo.Enterprise?.DefaultLanguageCode || null,
-              currency: hotelInfo.Enterprise?.Currencies?.find((c: any) => c.IsDefault)?.Currency || null,
-              isActive: true,
-              cityTaxCode: taxes.TaxRates?.[0]?.Code || null,
-              address: {
-                address: hotelInfo.address || '',
-                city: hotelInfo.city || '',
-                zipCode: hotelInfo.postal_code || '',
-                country: hotelInfo.country || '',
-                email: hotelInfo.email || '',
-                phone: hotelInfo.phone || '',
-            },
-            additionalInfo: {
-              taxes,
-              }
+          console.log("lean token response:::::", token);
+          if (
+            !checkIfAllRequiredParamsArePresent(
+              leanBody,
+              UPDATE_CONTACT_REQUIRED_PARAMS
+            )
+          ) {
+            return {
+              status: 400,
+              message: 'Missing required details',
+            };
+          }
+          const endpoint = `${data?.url}/api/v2/customers/people/${Number(leanBody.id)}/`;
+          const headers: HttpHeaders = {
+            Authorization: `Token ${token}`,
+          };
+      
+          const transformedLeanRequestBody = transformRequest(
+            leanBody,
+            UPDATE_CONTACT_REQUIRED_PARAMS,
+            UPDATE_CONTACT_OPTIONAL_PARAMS
+          );
+    
+          console.log("transformed lean body:::", transformedLeanRequestBody);
+          // return {transformedLeanRequestBody}
+          const request = createHttpPostRequest(
+            'POST' as HttpMethod,
+            endpoint,
+            headers,
+            transformedLeanRequestBody
+          );
+          const response = await httpClient.sendRequest(request);
+          console.log('response 123', JSON.stringify(response));
+          return response.body;
+          if (response.body.customer_id) {
+            return {id: response.body.customer_id, ...leanBody}
+          } else {
+            return {
+              status: 400,
+              message: "Customer not created"
             }
           }
-          return transformedData;
         }
         return {
           status: 401,
