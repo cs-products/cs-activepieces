@@ -81,7 +81,6 @@ export const searchcompany = createAction({
     }
     console.log('reqBody', reqBody);
     const decodedObject = await decode(reqBody.data);
-    const {filters} = reqBody;
     console.log(decodedObject, JSON.stringify(decodedObject));
     const mewsBody:MewsBody = reqBody.filters;
     const data: MewsRequest = decodedObject;

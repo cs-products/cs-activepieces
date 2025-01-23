@@ -8,6 +8,11 @@ import { getResourceCategory } from "./lib/actions/get-resource-category";
 import { getProducts } from "./lib/actions/get-products";
 import { getRatePlans } from "./lib/actions/get-rate-plans";
 import { catchLeanWebhook } from "./lib/actions/catch-lean-webhook";
+import { createDeposit } from "./lib/actions/create-deposit";
+import { getDeposits } from "./lib/actions/get-deposits";
+import { createCompany } from "./lib/actions/create-company";
+import { searchCompany } from "./lib/actions/search-company";
+import { updateCompany } from "./lib/actions/update-company";
     
 export const lean = createPiece({
   displayName: 'Lean',
@@ -15,7 +20,7 @@ export const lean = createPiece({
   minimumSupportedRelease: '0.36.1',
   logoUrl: 'https://cdn.activepieces.com/pieces/lean.png',
   authors: [],
-  actions: [addContact,searchContact,getHotelConfig,updateContact,getResourceCategory,getProducts,getRatePlans,catchLeanWebhook],
+  actions: [addContact,searchContact,getHotelConfig,updateContact,getResourceCategory,getProducts,getRatePlans,catchLeanWebhook,createDeposit,getDeposits,createCompany,searchCompany,updateCompany],
   triggers: [],
 });
     

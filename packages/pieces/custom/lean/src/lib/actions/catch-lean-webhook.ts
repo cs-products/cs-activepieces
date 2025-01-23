@@ -4,7 +4,7 @@ import {
   Property,
 } from '@activepieces/pieces-framework';
 import { getAuthToken } from '../common/getAuthToken';
-import { getAllRooms } from '.././common/getAllRooms';
+import { getAllRooms } from '../common/getAllRooms';
 import {
   createGimmyPayloadFromRequestBody,
   fetchRoomId,
@@ -79,7 +79,8 @@ export const catchLeanWebhook = createAction({
     // Action logic here
     const { body } = context.propsValue;
     const origin = 'https://uat-fr-pms.leanhotelsystem.com';
-    const hotelId = body?.['hotel']?.id;
+    const data = body?.['body'] || {};
+    const hotelId = data?.['hotel']?.id;
     try {
       const authTokenResponse = await getAuthToken(
         origin,
@@ -90,16 +91,16 @@ export const catchLeanWebhook = createAction({
         authTokenResponse?.status == 200 ? authTokenResponse?.body?.token : '';
       console.log('auth token fetched');
       const allRoomsResponse = await getAllRooms(origin, authToken, hotelId);
-      const roomId = fetchRoomId(body?.['room'], allRoomsResponse);
+      const roomId = fetchRoomId(data?.['room'], allRoomsResponse);
       console.log('Room id fetched', roomId);
 
-      const gimmyPayload = createGimmyPayloadFromRequestBody(body, roomId);
+      const gimmyPayload = createGimmyPayloadFromRequestBody(data, roomId);
       return { data: gimmyPayload };
     } catch (err: any) {
       console.log('Some error occured', JSON.stringify(err));
       return {
         status: 500,
-        message: 'Internal Server Error',
+        message: `Internal Server Error ${JSON.stringify(err)}`,
       };
     }
   },
