@@ -93,8 +93,8 @@ export const getRatePlan = createAction({
     const data: any = decodedObject;
     const creds = data?.['credentials'];
     const { username, password } = creds;
-    const { url, hotelId } = data;
-    if (!url || !hotelId || !username || !password) {
+    const { url } = data;
+    if (!url || !username || !password) {
       return {
         status: 400,
         message: 'Wrong Credentials/url',
@@ -103,7 +103,7 @@ export const getRatePlan = createAction({
 
     try {
       const thaisToken = await getAuthToken(username, password, url);
-
+      console.log("Thais token::::", thaisToken);
       const headers = {
         Accept: 'application/json',
         Authorization: `Bearer ${thaisToken}`,

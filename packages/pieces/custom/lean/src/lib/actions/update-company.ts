@@ -145,24 +145,31 @@ export const updateCompany = createAction({
 
       delete transformedLeanRequestBody['country'];
       const requestArray = [transformedLeanRequestBody]
-      return {requestArray}
+      // return {requestArray}
+      console.log(JSON.stringify(requestArray, null, 2));
       const request = createHttpPostRequest(
         'PUT' as HttpMethod,
         endpoint,
         headers,
         requestArray
       );
+      
       const response = await httpClient.sendRequest(request);
       console.log('response 123', JSON.stringify(response));
-      return response.body;
-      if (response.body.id) {
-        return {id: response.body.customer_id, ...leanBody}
-      } else {
-        return {
-          status: 400,
-          message: "Customer not created"
-        }
-      }
+      return {
+        id: response.body[0]?.id || '',
+        siretNumber: response.body[0]?.cif || '',
+        vatNumber: response.body[0]?.['tax_id'] || '',
+        name: response.body[0]?.name || '',
+        email: response.body[0]?.email || '',
+        phone: response.body[0]?.phone || '',
+        address: {
+          street: response.body[0]?.address,
+          city: response.body[0]?.city,
+          country: response.body[0]?.['country_alfa2'],
+          zip: response.body[0]?.['postal_code'],
+        },
+      };
     }
     return {
       status: 401,

@@ -94,7 +94,7 @@ export const getResources = createAction({
     const creds = data?.['credentials'];
     const { username, password } = creds;
     const { url, hotelId } = data;
-    if (!url || !hotelId || !username || !password) {
+    if (!url || !username || !password) {
       return {
         status: 400,
         message: 'Wrong Credentials/url',

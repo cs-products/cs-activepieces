@@ -4,19 +4,21 @@ export const createHttpPostRequest = (
   method: HttpMethod,
   url: string,
   headers: Record<string, any> = {},
-  additionalBody: Record<string, any> = {}
+  additionalBody: Record<string, any> | any[] = {}
 ): HttpRequest => ({
   method,
   url,
   headers,
   timeout: 5000,
-  body: {
-    Limitation: {
-      Cursor: null,
-      Count: 999,
-    },
-    ...additionalBody,
-  },
+  body: Array.isArray(additionalBody)
+    ? additionalBody // Directly assign the array if additionalBody is an array
+    : {
+        Limitation: {
+          Cursor: null,
+          Count: 999,
+        },
+        ...additionalBody, // Spread additionalBody if it's an object
+      },
 });
 
 export const decode = (body: string) => {
