@@ -1,0 +1,58 @@
+
+<OTA_HotelResNotifRQ xmlns="http://www.opentravel.org/OTA/2003/05" ResStatus="Commit" TimeStamp="2013-10-13T00:00:00.000Z" Version="5.000">
+	<HotelReservations>
+		<HotelReservation CreateDateTime="2013-09-19T17:06:29" ResStatus="Reserved">
+			<UniqueID ID="60072IC000102" Type="14" />
+			<RoomStays>
+				<RoomStay MarketCode="MKT" SourceOfBusiness="ABC">
+					<RatePlans>
+						<RatePlan RatePlanCode="AAA" />
+					</RatePlans>
+					<RoomRates>
+						<RoomRate NumberOfUnits="1" RatePlanCode="AAA" RoomTypeCode="QQ">
+							<Rates>
+								<Rate EffectiveDate="2013-10-14" ExpireDate="2013-10-15" RateTimeUnit="Day" UnitMultiplier="1">
+									<Base AmountBeforeTax="100.10" CurrencyCode="USD" />
+								</Rate>
+								<Rate EffectiveDate="2013-10-15" ExpireDate="2013-10-17" RateTimeUnit="Day" UnitMultiplier="2">
+									<Base AmountBeforeTax="85" CurrencyCode="USD" />
+								</Rate>
+								<Rate EffectiveDate="2013-10-17" ExpireDate="2013-10-18" RateTimeUnit="Day" UnitMultiplier="1">
+									<Base AmountBeforeTax="100.10" CurrencyCode="USD" />
+								</Rate>
+							</Rates>
+						</RoomRate>
+					</RoomRates>
+					<TimeSpan End="2013-10-18" Start="2013-10-14" />
+					<BasicPropertyInfo HotelCode="59072" />
+				</RoomStay>
+			</RoomStays>
+			<ResGuests>
+				<ResGuest>
+					<Profiles>
+						<ProfileInfo>
+							<Profile ProfileType="1">
+								<Customer>
+									<Address Type="1">
+										<StateProv StateCode="CA" />
+										<CountryName code="US" />
+									</Address>
+								</Customer>
+							</Profile>
+						</ProfileInfo>
+						<ProfileInfo>
+							<UniqueID ID="Booking.com" ID_Context="IATA" Type="5" />
+							<Profile ProfileType="4" />
+						</ProfileInfo>
+					</Profiles>
+				</ResGuest>
+			</ResGuests>
+			<ResGlobalInfo>
+				<HotelReservationIDs>
+					<HotelReservationID ForGuest="true" ResID_Date="2015-05-13T17:19:58.000" ResID_Source="PMS" ResID_Type="10" ResID_Value="60072IC000102"/>
+					<HotelReservationID ResID_Type="27" ResID_Value="60072IC000102" ResID_Source="PMS" ResID_Date="2014-01-01T12:34:56.000" ForGuest="false"/>
+				</HotelReservationIDs>
+			</ResGlobalInfo>
+		</HotelReservation>
+	</HotelReservations>
+</OTA_HotelResNotifRQ>
