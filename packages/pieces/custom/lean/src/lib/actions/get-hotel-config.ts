@@ -144,7 +144,7 @@ export const getHotelConfig = createAction({
           const hotelRes = await httpClient.sendRequest(hotelRequest);
           const hotelInfo = hotelRes.body[0];
           console.log("hotel info", JSON.stringify(hotelInfo));
-          const companyCode = hotelInfo?.chain_company_code || "";
+          const companyCode = hotelInfo?.chain_cif || "";
           const companyRequest: any = createHttpPostRequest(
             'GET' as HttpMethod,
             companiesEndpoint,
@@ -178,15 +178,15 @@ export const getHotelConfig = createAction({
               currency: hotelInfo.Enterprise?.Currencies?.find((c: any) => c.IsDefault)?.Currency || null,
               isActive: true,
               cityTaxCode: taxes.TaxRates?.[0]?.Code || null,
+              cif: cif,
+              taxNumber: taxNumber,
               address: {
                 address: hotelInfo.address || '',
                 city: hotelInfo.city || '',
                 zipCode: hotelInfo.postal_code || '',
                 country: hotelInfo.country || '',
                 email: hotelInfo.email || '',
-                phone: hotelInfo.phone || '',
-                cif: cif,
-                taxNumber: taxNumber
+                phone: hotelInfo.phone || ''
             },
             additionalInfo: {
               taxes,
