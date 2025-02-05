@@ -1,7 +1,7 @@
-# pieces-Gimmy
+# pieces-gimmy
 
 This library was generated with [Nx](https://nx.dev).
 
 ## Building
 
-Run `nx build pieces-Gimmy` to build the library.
+Run `nx build pieces-gimmy` to build the library.

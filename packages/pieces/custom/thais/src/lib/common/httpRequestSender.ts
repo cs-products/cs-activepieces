@@ -54,7 +54,7 @@ export const httpRequest = async (
     const httpReq = await httpClient.sendRequest(loginRequest);
 
     // Log the response for debugging
-    console.debug('Response received:', httpReq);
+    // console.debug('Response received:', httpReq);
 
     // Return the response
     return httpReq;

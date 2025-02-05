@@ -1,7 +1,7 @@
 {
-  "name": "pieces-Gimmy",
+  "name": "pieces-gimmy",
   "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/pieces/custom/Gimmy/src",
+  "sourceRoot": "packages/pieces/custom/gimmy/src",
   "projectType": "library",
   "release": {
     "version": {
@@ -19,12 +19,12 @@
         "{options.outputPath}"
       ],
       "options": {
-        "outputPath": "dist/packages/pieces/custom/Gimmy",
-        "tsConfig": "packages/pieces/custom/Gimmy/tsconfig.lib.json",
-        "packageJson": "packages/pieces/custom/Gimmy/package.json",
-        "main": "packages/pieces/custom/Gimmy/src/index.ts",
+        "outputPath": "dist/packages/pieces/custom/gimmy",
+        "tsConfig": "packages/pieces/custom/gimmy/tsconfig.lib.json",
+        "packageJson": "packages/pieces/custom/gimmy/package.json",
+        "main": "packages/pieces/custom/gimmy/src/index.ts",
         "assets": [
-          "packages/pieces/custom/Gimmy/*.md"
+          "packages/pieces/custom/gimmy/*.md"
         ],
         "buildableProjectDepsInPackageJsonType": "dependencies",
         "updateBuildableProjectDepsInPackageJson": true

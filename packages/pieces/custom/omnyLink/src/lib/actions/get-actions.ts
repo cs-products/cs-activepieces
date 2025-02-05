@@ -148,11 +148,11 @@ export const getActions = createAction({
     if (!token) {
       return { message: 'unauthorised' }
     }
-    if (action?.endpoint) {
+    if (action?.endPoint) {
       const baseUrl = context.auth?.baseUrl
       // 'http://192.168.19.20:4000'
       // context.auth?.baseUrl
-      const url = baseUrl + action?.endpoint;
+      const url = baseUrl + action?.endPoint;
       // if (!body) {
       //   return 'Send Body From Catch Webhook';
       // }

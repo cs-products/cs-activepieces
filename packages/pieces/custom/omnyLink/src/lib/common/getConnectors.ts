@@ -30,6 +30,7 @@ export const getConnectors = async (data: any) => {
     });
 
     const responseData: any = httpResponse?.body;
+    console.log("Response from connectivity in get actions - omnyLink:::", responseData);
 
     if (!responseData || !Array.isArray(responseData)) {
         throw new Error('Invalid response from API');

@@ -12,21 +12,24 @@ export const gimmyAuth = PieceAuth.CustomAuth({
       displayName: 'Username',
       description: 'This is the Username you use to log into the server',
       required: true,
+      defaultValue:"clicsoft"
     }),
     password: PieceAuth.SecretText({
       displayName: 'Password',
       description: 'This is the password you use to log into the server',
       required: true,
+      defaultValue:"8FK/nJrv5eWoK17RpcPuOS"
     }),
     hotelId: Property.LongText({
       displayName: 'Hotel Id',
       description: 'This is the Id provided by the Gimmy',
       required: true,
+      defaultValue:'1'
     }),
   },
   required: true,
 });
-export const Gimmy = createPiece({
+export const gimmy = createPiece({
   displayName: 'Gimmy',
   auth: gimmyAuth,
   minimumSupportedRelease: '0.20.0',

@@ -121,7 +121,7 @@ export const searchCompany = createAction({
       };
       const queryParams: Record<string, string | undefined> = {
         id: leanBody?.id,
-        name: leanBody?.name,
+        name: leanBody?.names,
         phone: leanBody?.phone,
         email: leanBody?.email,
       };
@@ -155,7 +155,7 @@ export const searchCompany = createAction({
           }
         };
       });
-      return {deposits: transformedRes};
+      return {companies: transformedRes};
     }
     return {
       status: 401,
