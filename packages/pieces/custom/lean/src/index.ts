@@ -13,6 +13,7 @@ import { getDeposits } from "./lib/actions/get-deposits";
 import { createCompany } from "./lib/actions/create-company";
 import { searchCompany } from "./lib/actions/search-company";
 import { updateCompany } from "./lib/actions/update-company";
+import { searchReservations } from "./lib/actions/search-reservations";
     
 export const lean = createPiece({
   displayName: 'Lean',
@@ -20,7 +21,7 @@ export const lean = createPiece({
   minimumSupportedRelease: '0.36.1',
   logoUrl: 'https://cdn.activepieces.com/pieces/lean.png',
   authors: [],
-  actions: [addContact,searchContact,getHotelConfig,updateContact,getResourceCategory,getProducts,getRatePlans,catchLeanWebhook,createDeposit,getDeposits,createCompany,searchCompany,updateCompany],
+  actions: [addContact,searchContact,getHotelConfig,updateContact,getResourceCategory,getProducts,getRatePlans,catchLeanWebhook,createDeposit,getDeposits,createCompany,searchCompany,updateCompany,searchReservations],
   triggers: [],
 });
     

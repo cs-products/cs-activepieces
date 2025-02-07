@@ -1,4 +1,5 @@
 import { HttpMethod, HttpRequest } from "@activepieces/pieces-common";
+import { GUEST_TYPE } from "./constants";
 
 export const createHttpPostRequest = (
   method: HttpMethod,
@@ -165,4 +166,130 @@ export const fetchRoomId = (selectedRoom: any, allRoomsResponse: any) => {
       (roomData: any) => roomData?.code == selectedRoom?.code
     )?.id || ''
   );
+};
+
+export const transformPurposeResponse = (apiResponse: any) =>
+  apiResponse?.body?.results?.reduce((acc: any, purposeDetails: any) => {
+    acc[purposeDetails?.id] = purposeDetails?.name;
+    return acc;
+  }, {});
+
+export const transformRoomCategoriesResponse = (apiResponse: any) => {
+  return apiResponse?.body?.reduce((acc: any, curr: any) => {
+    acc[curr?.id] = curr?.code;
+    return acc;
+  }, {});
+};
+
+export const transformProductResponse = (apiResponse: any) => {
+  return apiResponse?.body?.reduce((acc: any, curr: any) => {
+    acc[curr?.id] = curr;
+    return acc;
+  }, {});
+};
+
+export const modifySearchReservationData = (
+  currentReservation: any,
+  purposes: any,
+  roomCategories: any,
+  products: any
+) => {
+  try {
+    return {
+      fileId: currentReservation?.group,
+      yourRefId: '',
+      guest: {
+        companyId: currentReservation?.main_guest?.company_id,
+        contactId: currentReservation?.main_guest?.id,
+      },
+      state: currentReservation?.status, //todo: Understand the states of a reservation which we are using in gateway.
+      marketing: {
+        source: '',
+        segment: '',
+        channel: currentReservation?.channel,
+      },
+      purpose: purposes[currentReservation?.purpose] || '',
+      reservationId: currentReservation?.id,
+      roomTypes: [
+        {
+          roomTypeCode: roomCategories[currentReservation?.room_type_id],
+          roomTypeLabel: currentReservation?.room_type,
+          //
+          ratePlanCode: '',
+          ratePlanLabel: '',
+          isVirtual: false,
+          amountAfterTax: null,
+          discount: null,
+          taxValue: 50.5,
+          taxPercent: 10,
+          numberOfRooms: 1,
+          //
+          guestCount: [
+            {
+              ageCategoryId: GUEST_TYPE[0],
+              numberOfGuest: currentReservation?.adults,
+            },
+            {
+              ageCategoryId: GUEST_TYPE[1],
+              numberOfGuest: currentReservation?.children,
+            },
+            {
+              ageCategoryId: GUEST_TYPE[2],
+              numberOfGuest: currentReservation?.babies,
+            },
+          ],
+          slots: {
+            slotCodeFrom: '',
+            slotCodeTo: '',
+          },
+          pmsFields: {},
+          orderItems:
+            currentReservation?.extras?.reduce((acc: any, curr: any) => {
+              const prod = products[curr?.extra_id];
+              acc.push({
+                name: prod?.name,
+                count: 1,
+                currency: prod?.currency || currentReservation?.currency,
+                amountAfterTax: prod?.price,
+                taxValue: prod?.tax,
+                taxPercent: null,
+              });
+              return acc;
+            }, []) ?? [],
+        },
+      ],
+      createdAt: `${new Date(currentReservation?.created_at).toISOString()}`,
+      updatedAt: `${new Date(currentReservation?.updated_at).toISOString()}`,
+    };
+  } catch {
+    return {};
+  }
+};
+
+export const createSearchReservationsResponse = (
+  apiResponse: any,
+  purposes: any,
+  roomCategories: any,
+  products: any
+) => {
+  return apiResponse?.body?.results?.reduce(
+    (acc: any, currentReservation: any) => {
+      const startDate = currentReservation?.date_from;
+      const modifiedReservationData = modifySearchReservationData(
+        currentReservation,
+        purposes,
+        roomCategories,
+        products
+      );
+      console.log('res111', currentReservation.id, startDate);
+      if (Object.keys(acc).indexOf(startDate) > -1) {
+        acc[startDate].push(modifiedReservationData);
+      } else {
+        acc[startDate] = [modifiedReservationData];
+      }
+      return acc;
+    },
+    {}
+  );
+  //return modifySearchReservationData(apiResponse?.body?.results?.[0], purposes, roomCategories, products);
 };

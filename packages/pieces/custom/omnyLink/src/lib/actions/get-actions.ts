@@ -205,6 +205,8 @@ export const getActions = createAction({
       if (body) {
         const reqHeaders = body["data"]["headers"]
         const reqQueryParams = body["data"]['queryParams']
+        const reqBody = body['data']['body'];
+        console.log("Req query params:::", reqQueryParams);
         if (reqHeaders) {
           const { ref, reqparams } = reqHeaders
           if (ref && reqparams) {
@@ -212,8 +214,8 @@ export const getActions = createAction({
             let httpResponse
             const method = getMethod(action.method)
             if (method) {
-              if (reqQueryParams && Object.keys(reqQueryParams).length) {
-                httpResponse = await httpRequest({ method: method, url, timeout: 5000, headers, queryParams: reqQueryParams })
+              if (body && Object.keys(body).length) {
+                httpResponse = await httpRequest({ method: method, url, body: reqBody, timeout: 5000, headers, queryParams: reqQueryParams })
               } else {
                 httpResponse = await httpRequest({ method: method, url, timeout: 5000, headers })
               }

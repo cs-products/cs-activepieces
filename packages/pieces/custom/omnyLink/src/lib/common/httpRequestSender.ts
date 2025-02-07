@@ -10,49 +10,54 @@ type HttpRequestParams = {
 };
 
 // Define the function for making HTTP requests
-export const httpRequest = async (req: HttpRequestParams): Promise<HttpResponse> => {
-    const { method, url, body, timeout = 0, headers, queryParams } = req;
-    const buildUrlWithQueryParams = (url: string, queryParams?: Record<string, string | number | boolean | undefined>): string => {
-        if (!queryParams) return url;
-        const searchParams = new URLSearchParams();
-        for (const [key, value] of Object.entries(queryParams)) {
-            if (value !== undefined && value !== null) {
-                searchParams.append(key, String(value));
-            }
-        }
-        const queryString = searchParams.toString();
-        return queryString ? `${url}?${queryString}` : url;
-    };
+export const httpRequest = async (
+  req: HttpRequestParams
+): Promise<HttpResponse> => {
+  const { method, url, body, timeout = 5000, headers = {}, queryParams } = req;
 
-    const finalUrl = buildUrlWithQueryParams(url, queryParams);
+   let finalUrl = url;
+  if (queryParams) {
+    const formattedQueryParams = new URLSearchParams(
+      Object.entries(queryParams)
+        .filter(([_, value]) => value !== undefined) // Remove undefined values
+        .map(([key, value]) => [key, String(value)]) // Convert all values to strings
+    ).toString();
 
-    // Create the base request object
-    const loginRequest: HttpRequest = {
-        method: method,
-        url: finalUrl,
-        headers: headers,
-        timeout: timeout,
-    };
-
-    // Add body only for methods that require it (e.g., POST, PUT)
-    if (method !== HttpMethod.GET && method !== HttpMethod.DELETE && body) {
-        loginRequest.body = body;
+    // Append the query string to the URL if not empty
+    if (formattedQueryParams) {
+      finalUrl += `?${formattedQueryParams}`;
     }
+  }
 
-    try {
-        // Send the HTTP request using the httpClient
-        const httpReq = await httpClient.sendRequest(loginRequest);
+  // Ensure headers are properly structured
+  const finalHeaders = {
+    'Content-Type': 'application/json', // Ensure JSON content type
+    ...headers, // Spread existing headers
+  };
 
-        // Log the response for debugging
-        console.debug("Response received:", httpReq);
+  // Create the base request object
+  const loginRequest: HttpRequest = {
+    method,
+    url: finalUrl,
+    headers: finalHeaders,
+    timeout,
+  };
 
-        // Return the response
-        return httpReq;
-    } catch (error) {
-        // Handle any errors in the request
-        console.error("Error during HTTP request:", error);
+  // Add body only for methods that require it (POST, PUT, PATCH)
+  if (method !== HttpMethod.GET && method !== HttpMethod.DELETE && body) {
+    loginRequest.body = body;
+  }
 
-        // Re-throw the error for higher-level handling
-        throw new Error(`HTTP request failed: ${error}`);
-    }
+  console.log('Final request::::', loginRequest);
+
+  try {
+    // Send the HTTP request using the httpClient
+    const httpResponse = await httpClient.sendRequest(loginRequest);
+
+    console.log('Response received::::', httpResponse);
+    return httpResponse;
+  } catch (error) {
+    console.error('Error during HTTP request:', error);
+    throw new Error(`HTTP request failed: ${error}`);
+  }
 };

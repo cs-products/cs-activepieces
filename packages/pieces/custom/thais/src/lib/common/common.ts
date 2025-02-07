@@ -219,7 +219,8 @@ export const mappedGetReservationData = async (
                 },
               },
               // booking_room?.rooming_customer,
-              roomCode: booking_room?.room_id
+              //Room code should be booking_room Id 
+              roomCode: booking_room?.id
                 ? booking_room?.room_id?.toString()
                 : '',
               roomCodeLabel: booking_room?.room?.label || '',

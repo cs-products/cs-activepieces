@@ -98,27 +98,36 @@ export const searchReservations = createAction({
     const {
       startDate = null,
       endDate = null,
-      type = null,
+      dateType = null,
       state = null,
       pmsField = null,
     } = getReservationsReqFilters || {};
 
     try {
-      var start_at = '';
-      var end_at = '';
-      if (startDate) {
-        start_at = startDate.split('T')[0];
-      }
-      if (endDate) {
-        end_at = endDate.split('T')[0];
-      }
       const thaisToken = await getAuthToken(username, password, url);
 
       const headers = {
         Accept: 'application/json',
         Authorization: `Bearer ${thaisToken}`,
       };
-
+      const queryParams: any = {};
+      if (startDate) {
+        if (dateType == 'arrival') {
+          queryParams.start_at = startDate.split('T')[0];
+        } else if (dateType === 'updated') {
+          queryParams.updated_since = startDate.split('T')[0];
+        } else if (dateType === "created") {
+          queryParams.created_between = true;
+          queryParams.from = startDate.split('T')[0];
+        }
+      }
+      if (endDate) {
+        if (dateType == 'arrival') {
+          queryParams.end_at = endDate.split('T')[0];
+        } else if (dateType === 'created') {
+          queryParams.to = endDate.split('T')[0];
+        }
+      }
       // Fetch data from API
       const thaisBookingurl = url + '/hub/api/partner/hotel/bookings';
       const req = {
@@ -126,19 +135,60 @@ export const searchReservations = createAction({
         url: thaisBookingurl,
         timeout: 5000,
         headers,
-        queryParams: { start_at, end_at },
+        queryParams,
       };
       const thaisResponse = await httpRequest(req);
 
-      const thaisResData: any = thaisResponse?.body;
+      var thaisResData: any = thaisResponse?.body;
       if (thaisResData && thaisResData.length) {
-        const reservations: any = await mappedGetReservationData(
-          thaisResData,
-          ref,
-          url,
-          thaisToken
-        );
-        return { reservations };
+        // if (startDate) {
+        //   if (dateType === 'created') {
+        //     thaisResData = thaisResData.filter(
+        //       (item: any) => new Date(item?.created_at) >= new Date(startDate)
+        //     );
+        //   } else if (dateType === 'deleted') {
+        //     thaisResData = thaisResData.filter(
+        //       (item: any) =>
+        //         item?.canceled == true &&
+        //         new Date(item?.canceled_at) >= new Date(startDate)
+        //     );
+        //   }
+        // }
+        if (endDate) {
+          if (dateType === 'updated') {
+            thaisResData = thaisResData.filter(
+              (item: any) => new Date(item?.updated_at) <= new Date(endDate)
+            );
+          } else if (dateType === 'deleted') {
+            thaisResData = thaisResData.filter(
+              (item: any) =>
+                item?.canceled == true &&
+                new Date(item?.canceled_at) <= new Date(endDate)
+            );
+          }
+        }
+        // if (state) {
+        //   if (state == 'confirmed') {
+        //     thaisResData = thaisResData.filter(
+        //       (item: any) => item?.confirmed == true
+        //     );
+        //   } else {
+        //     thaisResData = thaisResData.filter(
+        //       (item: any) => item?.confirmed == false
+        //     );
+        //   }
+        // }
+        if (thaisResData && thaisResData.length) {
+          const reservations: any = await mappedGetReservationData(
+            thaisResData,
+            ref,
+            url,
+            thaisToken
+          );
+          return { reservations };
+        } else {
+          return { reservations: {} };
+        }
       } else {
         return { reservations: {} };
       }

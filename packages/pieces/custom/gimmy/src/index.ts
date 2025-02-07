@@ -4,6 +4,7 @@ import {
   Property,
 } from '@activepieces/pieces-framework';
 import { gimmibookings } from './lib/actions/manage-bookings';
+import { generateGimmyData } from './lib/actions/generate-gimmy-data';
 
 export const gimmyAuth = PieceAuth.CustomAuth({
   description: 'Enter authentication details',
@@ -35,6 +36,6 @@ export const gimmy = createPiece({
   minimumSupportedRelease: '0.20.0',
   logoUrl: 'https://csapigateway.clicsoft.dev/images/gimmy.svg',
   authors: [],
-  actions: [gimmibookings],
+  actions: [gimmibookings,generateGimmyData],
   triggers: [],
 });

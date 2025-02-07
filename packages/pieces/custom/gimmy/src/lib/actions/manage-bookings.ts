@@ -198,39 +198,51 @@ export const gimmibookings = createAction({
               nb_infants: nb_infants || 0,
               nb_children: nb_children || 0,
               nb_adults: nb_adults || 0,
-              pms_id: reservation?.reservationId ? reservation?.reservationId?.toString() : "",
+              pms_id: reservation?.reservationId
+                ? reservation?.reservationId?.toString() +
+                  '_' +
+                  booking_room?.pmsFields.roomCode
+                : '',
               pms_code: 'thais',
               cm_id: null,
               ota_id: null,
-              booking_group_pms_id: reservation?.fileId || "",
-              date_from: min ?? "", // slots
-              date_to: max ?? "", //slots
-              created_at: reservation?.createdAt ? formatDate(reservation?.createdAt) : "",
-              updated_at: reservation?.updatedAt ? formatDate(reservation?.updatedAt) : "",
+              booking_group_pms_id: reservation?.fileId || '',
+              date_from: min ?? '', // slots
+              date_to: max ?? '', //slots
+              created_at: reservation?.createdAt
+                ? formatDate(reservation?.createdAt)
+                : '',
+              updated_at: reservation?.updatedAt
+                ? formatDate(reservation?.updatedAt)
+                : '',
               canceled_at: null,
               no_show_at: null,
               booking_source: reservation?.marketing?.source,
-              booking_origin: reservation?.marketing?.channel || "",
-              booking_reason: reservation?.purpose || "",
+              booking_origin: reservation?.marketing?.channel || '',
+              booking_reason: reservation?.purpose || '',
               room_id: booking_room?.pmsFields?.roomCode ?? '',
               room_label: booking_room?.pmsFields?.roomCodeLabel || '',
-              room_type_id: booking_room?.roomTypeCode ? booking_room?.roomTypeCode.toString() : "",
+              room_type_id: booking_room?.roomTypeCode
+                ? booking_room?.roomTypeCode.toString()
+                : '',
               room_type_label: booking_room?.roomTypeLabel || '',
-              rate_id: booking_room?.ratePlanCode ? booking_room?.ratePlanCode.toString() : "",
-              rate_label: booking_room?.ratePlanLabel || "",
+              rate_id: booking_room?.ratePlanCode
+                ? booking_room?.ratePlanCode.toString()
+                : '',
+              rate_label: booking_room?.ratePlanLabel || '',
               customer: {
                 pms_id: customer?.id ? customer?.id?.toString() : '',
-                type: "PERSON",
+                type: 'PERSON',
                 firstname: customer?.name || '',
-                lastname: customer?.surname || "",
-                email: customer?.email || "",
-                phone: customer?.phone || "",
-                street_address: customer?.address?.street || "",
-                postcode: customer?.address?.zip || "",
-                city: customer?.address?.city || "",
-                country: customer?.address?.country || ""
-              }
-            }
+                lastname: customer?.surname || '',
+                email: customer?.email || '',
+                phone: customer?.phone || '',
+                street_address: customer?.address?.street || '',
+                postcode: customer?.address?.zip || '',
+                city: customer?.address?.city || '',
+                country: customer?.address?.country || '',
+              },
+            };
 
             const orderItems = booking_room?.orderItems
             const sales: any = []

@@ -1,0 +1,20 @@
+import { httpClient } from "@activepieces/pieces-common";
+import { createHttpRequest } from "./createHTTPRequest";
+
+export const getPurposes = async (origin: string, token: string) => {
+    const endpoint = `${origin}/api/v2/purposes`;
+    try {
+        const request = createHttpRequest(endpoint, {}, "GET", token);
+        const response: any = await httpClient.sendRequest<{
+            Services: any;
+        }>(request);
+        console.log("response get purposes",JSON.stringify(response?.body));
+        return response;
+    } catch (err: any) {
+        console.log("Error occured while fetching purposes!", JSON.stringify(err));
+        return {
+            status: 500,
+            message: "Internal Server Error",
+        };
+    }
+}

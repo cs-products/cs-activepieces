@@ -75,7 +75,7 @@ export const catchThaisWebhook = createAction({
   },
   async run(context) {
     const { body } = context.propsValue;
-    const reqBody: any = body?.['data']?.['body'] || '';
+    const reqBody: any = body?.['data']?.['body']?.['data'] || '';
     try {
       if (reqBody?.['booking_id']) {
         const thaisToken = await getAuthToken(
