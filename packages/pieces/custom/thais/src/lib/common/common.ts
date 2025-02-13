@@ -158,7 +158,11 @@ export const mappedGetReservationData = async (
             ext.consumedAt.startsWith(currentDate)
           );
           const accommodationsOrders = dailyAccommodations.map((acc: any) => ({
-            name: `${acc.category?.label}-${acc.type}`,
+            id: acc.id,
+            name: acc.category?.label,
+            type: acc?.type,
+            createdAt: acc?.createdAt,
+            updatedAt: acc?.updatedAt,
             count: acc.quantity,
             currency: 'EUR',
             amountAfterTax: acc.amountIncludingTaxes,
@@ -171,7 +175,11 @@ export const mappedGetReservationData = async (
           }));
 
           const extraOrdersForDate = dailyExtras.map((extra: any) => ({
-            name: `${extra.category?.label}-${extra.type}`,
+            id: extra.id,
+            name: extra.category?.label,
+            type: extra?.type,
+            createdAt: extra?.createdAt,
+            updatedAt: extra?.updatedAt,
             count: extra?.quantity,
             currency: 'EUR',
             amountAfterTax: extra?.amountIncludingTaxes,
@@ -184,7 +192,7 @@ export const mappedGetReservationData = async (
           }));
 
           // extraOrders.push(...extraOrdersForDate);
-          const { min, max } = getMinMaxConsumedAt(accommodations);
+          // const { min, max } = getMinMaxConsumedAt(accommodations);
           const room_type_standard = {
             roomTypeCode: booking_room?.room?.room_type_id,
             roomTypeLabel: booking_room?.room?.room_type?.label,
@@ -219,7 +227,7 @@ export const mappedGetReservationData = async (
                 },
               },
               // booking_room?.rooming_customer,
-              //Room code should be booking_room Id 
+              //Room code should be booking_room Id
               roomCode: booking_room?.id
                 ? booking_room?.room_id?.toString()
                 : '',
@@ -227,9 +235,9 @@ export const mappedGetReservationData = async (
             },
             orderItems: [...accommodationsOrders, ...extraOrdersForDate],
           };
-          if (accommodationsOrders && accommodationsOrders.length) {
-            roomTypes.push(room_type_standard);
-          }
+          // if (accommodationsOrders && accommodationsOrders.length) {
+          roomTypes.push(room_type_standard);
+          // }
         }
         const standardBookingObject = {
           fileId: reservation?.booking_group_id,
@@ -252,12 +260,12 @@ export const mappedGetReservationData = async (
           updatedAt: reservation?.updated_at,
         };
 
-        if (roomTypes && roomTypes.length) {
-          if (!bookingDataByDate[currentDate]) {
-            bookingDataByDate[currentDate] = [];
-          }
-          bookingDataByDate[currentDate].push(standardBookingObject);
+        // if (roomTypes && roomTypes.length) {
+        if (!bookingDataByDate[currentDate]) {
+          bookingDataByDate[currentDate] = [];
         }
+        bookingDataByDate[currentDate].push(standardBookingObject);
+        // }
       }
       if (a == apiData.length - 1) {
         res(bookingDataByDate);

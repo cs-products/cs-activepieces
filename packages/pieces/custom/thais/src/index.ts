@@ -6,6 +6,7 @@ import { catchThaisWebhook } from "./lib/actions/catch-thais-webhook";
 import { getProducts } from "./lib/actions/get-products";
 import { searchContact } from "./lib/actions/search-contact";
 import { searchReservations } from "./lib/actions/search-reservations";
+import { getDeletedBookings } from "./lib/actions/get-deleted-bookings";
     
 export const thais = createPiece({
   displayName: "Thais",
@@ -13,7 +14,7 @@ export const thais = createPiece({
   minimumSupportedRelease: '0.36.1',
   logoUrl: "https://cdn.activepieces.com/pieces/thais.png",
   authors: [],
-  actions: [getRatePlan,getResources,catchThaisWebhook,getProducts,searchContact,searchReservations],
+  actions: [getRatePlan,getResources,catchThaisWebhook,getProducts,searchContact,searchReservations,getDeletedBookings],
   triggers: [],
 });
     

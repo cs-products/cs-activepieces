@@ -107,91 +107,94 @@ export const gimmibookings = createAction({
       const login = await httpClient.sendRequest(loginRequest);
       if (login && login?.body?.token) {
         const token = login?.body?.token;
-        const reqBody = body['data']
-        const finalReservations: any = []
-        const dates = Object.keys(reqBody.reservations)
+        const reqBody = body['data'];
+        const finalReservations: any = [];
+        const dates = Object.keys(reqBody.reservations);
         for (var d = 0; d < dates.length; d++) {
-          const date = dates[d]
-          const reservations = reqBody.reservations[date]
+          const date = dates[d];
+          const reservations = reqBody.reservations[date];
           for (const reservation of reservations) {
-            let existingReservation = finalReservations.find((res: any) => res.reservationId === reservation.reservationId);
+            let existingReservation = finalReservations.find(
+              (res: any) => res.reservationId === reservation.reservationId
+            );
 
             if (!existingReservation) {
-              existingReservation = { ...reservation, roomTypes: [], dates: [date] };
+              existingReservation = {
+                ...reservation,
+                roomTypes: [],
+                dates: [date],
+              };
               finalReservations.push(existingReservation);
             }
 
             // Process roomTypes
             for (const room of reservation.roomTypes) {
-              const roomCode = room.pmsFields.roomCode;
-              const existingRoom = existingReservation.roomTypes.find((r: any) => r.pmsFields.roomCode === roomCode);
-
-              if (existingRoom) {
-                // Merge orderItems within the room
-                existingRoom.orderItems.push(
-                  ...room.orderItems.map((item: any) => ({
-                    ...item,
-                    reservationId: reservation.reservationId,
-                    consumedAt: date,
-                    roomCode
-                  }))
+              if (room?.orderItems && room?.orderItems.length) {
+                const roomCode = room.pmsFields.roomCode;
+                const existingRoom = existingReservation.roomTypes.find(
+                  (r: any) => r.pmsFields.roomCode === roomCode
                 );
-              } else {
-                // Add new room type entry
-                existingReservation.roomTypes.push({
-                  ...room,
-                  orderItems: room.orderItems.map((item: any) => ({
-                    ...item,
-                    reservationId: reservation.reservationId,
-                    consumedAt: date,
-                    roomCode
-                  }))
-                });
-                if (!existingReservation.dates.includes(date)) {
-                  existingReservation.dates.push(date);
+
+                if (existingRoom) {
+                  // Merge orderItems within the room
+                  existingRoom.orderItems.push(
+                    ...room.orderItems.map((item: any) => ({
+                      ...item,
+                      reservationId: reservation.reservationId,
+                      consumedAt: date,
+                      roomCode,
+                    }))
+                  );
                 } else {
-                  console.log("Date already exists in the reservation.");
+                  // Add new room type entry
+                  existingReservation.roomTypes.push({
+                    ...room,
+                    orderItems: room.orderItems.map((item: any) => ({
+                      ...item,
+                      reservationId: reservation.reservationId,
+                      consumedAt: date,
+                      roomCode,
+                    })),
+                  });
+                  if (!existingReservation.dates.includes(date)) {
+                    existingReservation.dates.push(date);
+                  } else {
+                    console.log('Date already exists in the reservation.');
+                  }
                 }
               }
             }
-
-            // Merge all orderItems at reservation level
-            // existingReservation.orderItems.push(
-            //   ...reservation.orderItems.map((item: any) => ({
-            //     ...item,
-            //     reservationId: reservation.reservationId,
-            //     consumedAt: date,
-            //   }))
-            // );
             if (!existingReservation.dates.includes(date)) {
               existingReservation.dates.push(date);
             } else {
-              console.log("Date already exists in the reservation.");
+              console.log('Date already exists in the reservation.');
             }
           }
         }
 
-        const gimmyResults: any = []
+        const gimmyResults: any = [];
         for (var r = 0; r < finalReservations.length; r++) {
-          const reservation = finalReservations[r]
-          const { min, max } = getMinMaxConsumedAt(reservation?.dates)
+          const reservation = finalReservations[r];
+          const { min, max } = getMinMaxConsumedAt(reservation?.dates);
           for (var rt = 0; rt < reservation?.roomTypes.length; rt++) {
-            const booking_room = reservation?.roomTypes[rt]
-            const pmsFields = booking_room?.pmsFields
-            const customer = pmsFields?.guest
-            var nb_infants = 0
-            var nb_children = 0
-            var nb_adults = 0
-            const guestCount = booking_room?.guestCount
+            const booking_room = reservation?.roomTypes[rt];
+            const pmsFields = booking_room?.pmsFields;
+            const customer = pmsFields?.guest;
+            var nb_infants = 0;
+            var nb_children = 0;
+            var nb_adults = 0;
+            const guestCount = booking_room?.guestCount;
             for (var g = 0; g < guestCount.length; g++) {
-              const guestCon = guestCount[g]
-              const ageCat = pmsFields?.ageCategory.find((ageC: any) => ageC?.ageCategoryId == guestCon?.ageCategoryId)
+              const guestCon = guestCount[g];
+              const ageCat = pmsFields?.ageCategory.find(
+                (ageC: any) => ageC?.ageCategoryId == guestCon?.ageCategoryId
+              );
               if (ageCat?.name == 'adults') {
-                nb_adults = guestCon?.numberOfGuest
+                nb_adults = guestCon?.numberOfGuest;
               } else if (ageCat?.name == 'children') {
-                nb_children = guestCon?.numberOfGuest
+                nb_children = guestCon?.numberOfGuest;
               } else {
-                nb_infants = guestCon?.numberOfGuest
+                nb_infants = guestCon?.numberOfGuest;
               }
             }
             const gimmyObj: any = {
@@ -199,9 +202,7 @@ export const gimmibookings = createAction({
               nb_children: nb_children || 0,
               nb_adults: nb_adults || 0,
               pms_id: reservation?.reservationId
-                ? reservation?.reservationId?.toString() +
-                  '_' +
-                  booking_room?.pmsFields.roomCode
+                ? reservation?.reservationId?.toString()
                 : '',
               pms_code: 'thais',
               cm_id: null,
@@ -244,33 +245,36 @@ export const gimmibookings = createAction({
               },
             };
 
-            const orderItems = booking_room?.orderItems
-            const sales: any = []
+            const orderItems = booking_room?.orderItems;
+            const sales: any = [];
             for (var o = 0; o < orderItems.length; o++) {
-              const orderItem = orderItems[o]
-              const orderName = orderItem?.name?.split("-")[0]
-              const type = orderItem?.name?.split("-")[1]
+              const orderItem = orderItems[o];
+              const orderName = orderItem?.name;
+              const type = orderItem?.type;
+
               const salesObject = {
-                pms_id: `${gimmyObj.pms_id}-${orderItem?.consumedAt}`,
-                type: type === 'HOTEL_PURCHASE' ? "EXTRA" : "ACCOMODATION",
-                label: `${orderName} ${orderItem?.consumedAt}`,
+                pms_id: `${gimmyObj.pms_id}-${orderItem?.id}`,
+                type: type === 'HOTEL_RESERVATION' ? 'ACCOMODATION' : 'EXTRA',
+                label: `${orderName}`,
                 quantity: orderItem?.count || 1,
                 is_offered: false,
-                amount_incl: orderItem?.amountAfterTax,
-                amount_excl: (orderItem?.amountAfterTax - orderItem?.taxValue).toFixed(2),
-                currency: "EUR",
+                amount_incl: parseFloat(orderItem?.amountAfterTax),
+                amount_excl: parseFloat(
+                  (orderItem?.amountAfterTax - orderItem?.taxValue).toString()
+                ),
+                currency: 'EUR',
                 consumed_at: orderItem?.consumedAt,
-                created_at: orderItem?.consumedAt,
-                updated_at: orderItem?.consumedAt,
-              }
-              sales.push(salesObject)
+                created_at: orderItem?.createdAt,
+                updated_at: orderItem?.updatedAt,
+              };
+              sales.push(salesObject);
             }
 
             gimmyResults.push({
               ...gimmyObj,
-              sales
-            })
-          };
+              sales,
+            });
+          }
         }
 
         const hotelId = 1;
@@ -296,7 +300,6 @@ export const gimmibookings = createAction({
         status: 401,
         message: 'Invalid Creds',
       };
-
     } catch (error) {
       console.error('Error running fetchdata action:', error);
       throw error;

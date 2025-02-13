@@ -215,9 +215,9 @@ export const getActions = createAction({
             const method = getMethod(action.method)
             if (method) {
               if (body && Object.keys(body).length) {
-                httpResponse = await httpRequest({ method: method, url, body: reqBody, timeout: 5000, headers, queryParams: reqQueryParams })
+                httpResponse = await httpRequest({ method: method, url, body: reqBody, timeout:20000, headers, queryParams: reqQueryParams })
               } else {
-                httpResponse = await httpRequest({ method: method, url, timeout: 5000, headers })
+                httpResponse = await httpRequest({ method: method, url, timeout: 20000, headers })
               }
               if (httpResponse?.body) {
                 return httpResponse?.body
