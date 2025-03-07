@@ -238,7 +238,7 @@ export const generateGimmyData = createAction({
               const type = orderItem?.type;
 
               const salesObject = {
-                pms_id: `${gimmyObj.pms_id}-${orderItem?.id}`,
+                pms_id: `${gimmyObj.pms_id}-${orderItem?.productCode}`,
                 type: type === 'HOTEL_RESERVATION' ? 'ACCOMODATION' : 'EXTRA',
                 label: `${orderName}`,
                 quantity: orderItem?.count || 1,
