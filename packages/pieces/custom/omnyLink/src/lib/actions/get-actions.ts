@@ -17,9 +17,8 @@ export const getActions = createAction({
       refreshers: [],
       required: true,
       defaultValue: '',
-      options: async () => {
-        const connectorResponse = await getConnectors({ isActive: true });
-
+      options: async (context: any) => {
+        const connectorResponse = await getConnectors({ isActive: true }, context.auth?.baseUrl);
         if (!connectorResponse || !Array.isArray(connectorResponse)) {
           throw new Error('Data is missing or invalid');
         }
@@ -44,12 +43,12 @@ export const getActions = createAction({
       refreshers: ['connectorType'],
       required: true,
       defaultValue: '',
-      options: async (propsValue) => {
-        const { connectorType } = propsValue;
+      options: async (propsValue:any) => {
+        const { connectorType, auth } = propsValue;
         if (!connectorType) {
           return { options: [] };
         }
-        const connectorResponse = await getConnectors({ isActive: true, connectorType });
+        const connectorResponse = await getConnectors({ isActive: true, connectorType },auth?.baseUrl);
 
         if (!connectorResponse || !Array.isArray(connectorResponse)) {
           throw new Error('Data is missing or invalid');
@@ -76,17 +75,16 @@ export const getActions = createAction({
       refreshers: ['connectorCode'],
       required: true,
       defaultValue: '',
-      options: async (propsValue) => {
+      options: async (propsValue:any) => {
         console.log("propsValue action", JSON.stringify(propsValue))
 
-        const { connectorCode } = propsValue;
+        const { connectorCode, auth } = propsValue;
 
         if (!connectorCode) {
           return { options: [] };
         }
 
-        const connectorResponse = await getConnectors({ isActive: true, connectorCode });
-
+        const connectorResponse = await getConnectors({ isActive: true, connectorCode },auth?.baseUrl);
         if (!connectorResponse || !Array.isArray(connectorResponse)) {
           throw new Error('Data is missing or invalid');
         }
@@ -99,7 +97,7 @@ export const getActions = createAction({
 
         return {
           options: uniqueActions.map((item: any) => ({
-            label: item.action,
+            label: item.actionName,
             value: item,
           })),
         };
@@ -150,57 +148,7 @@ export const getActions = createAction({
     }
     if (action?.endPoint) {
       const baseUrl = context.auth?.baseUrl
-      // 'http://192.168.19.20:4000'
-      // context.auth?.baseUrl
       const url = baseUrl + action?.endPoint;
-      // if (!body) {
-      //   return 'Send Body From Catch Webhook';
-      // }
-
-      // const reqData = body["data"];
-      // const reqHeaders = reqData["headers"];
-      // const reqQueryParams = reqData["queryParams"];
-      // if (!reqHeaders) {
-      //   return { message: "Send ReqHeaders in headers", data: reqData };
-      // }
-
-      // const { ref, reqparams } = reqHeaders;
-
-      // if (!ref || !reqparams) {
-      //   return { message: "Send Proper Ref and reqParams in Headers", data: reqHeaders };
-      // }
-      // const headers = {
-      //   Accept: 'application/json',
-      //   connectWith: connectorCode,
-      //   reqParams: reqparams,
-      //   ref: ref,
-      //   Authorization: `Bearer ${token}`,
-      // };
-
-      // const method = getMethod(action.method);
-
-      // if (!method) {
-      //   return { message: "Method is Not Proper", data: action };
-      // }
-      // let httpResponse;
-      // const httpRequestOptions: any = {
-      //   method: method,
-      //   url,
-      //   timeout: 5000,
-      //   headers,
-      // };
-
-      // if (reqQueryParams && Object.keys(reqQueryParams).length) {
-      //   httpRequestOptions.queryParams = reqQueryParams;
-      // }
-
-      // httpResponse = await httpRequest(httpRequestOptions);
-
-      // if (httpResponse?.body) {
-      //   return httpResponse.body;
-      // } else {
-      //   return { message: "Send ReqHeaders in headers", data: reqData };
-      // }
 
       if (body) {
         const reqHeaders = body["data"]["headers"]

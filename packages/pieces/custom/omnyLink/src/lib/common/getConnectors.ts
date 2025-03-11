@@ -3,11 +3,11 @@ import { httpRequest } from "./httpRequestSender";
 
 
 
-export const getConnectors = async (data: any) => {
+export const getConnectors = async (data: any, baseUrl:string) => {
     const { connectorType, connectorCode, isActive = false, author } = data
 
-    const baseUrl = 'https://unifiedplatform.clicsoft.dev'
-    // 'http://192.168.19.20:4000';
+    // const baseUrl = 'https://unifiedplatform.clicsoft.dev'
+    // const baseUrl = 'http://localhost:4000';
     let url = baseUrl + '/connectivity' + `?isActive=${isActive}`;
     if (connectorType){
         url = url + `&connectorType=${connectorType}`
@@ -30,7 +30,7 @@ export const getConnectors = async (data: any) => {
     });
 
     const responseData: any = httpResponse?.body;
-    console.log("Response from connectivity in get actions - omnyLink:::", responseData);
+    // console.log("Response from connectivity in get actions - omnyLink:::", responseData);
 
     if (!responseData || !Array.isArray(responseData)) {
         throw new Error('Invalid response from API');

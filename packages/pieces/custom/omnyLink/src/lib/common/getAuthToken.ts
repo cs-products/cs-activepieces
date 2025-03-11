@@ -8,7 +8,9 @@ export const getAuthToken = async(auth:any) => {
     if(!username || !password){
         return ''
     }else{
-        const baseUrl = 'https://unifiedplatform.clicsoft.dev'
+        // const baseUrl = 'https://unifiedplatform.clicsoft.dev'
+        // const baseUrl = "http://localhost:4000"
+        const baseUrl = auth.baseUrl;
         const url = baseUrl + '/auth/authenticate';
         const headers = { Accept: 'application/json' }
         const httpResponse = await httpRequest({ method: HttpMethod.POST, url, body: auth, timeout: 5000, headers })
