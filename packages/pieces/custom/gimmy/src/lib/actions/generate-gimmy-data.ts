@@ -92,7 +92,20 @@ export const generateGimmyData = createAction({
       const login = await httpClient.sendRequest(loginRequest);
       if (login && login?.body?.token) {
         const token = login?.body?.token;
-        const reqBody = body['data'];
+        let reqBody: any;
+
+        if (typeof body['data'] === 'string') {
+          try {
+            reqBody = JSON.parse(body['data']);
+          } catch (err) {
+            throw new Error(`Failed to parse body.data: ${body['data']}`);
+          }
+        } else {
+          reqBody = body['data'];
+        }
+        if (!reqBody.reservations || typeof reqBody.reservations !== 'object') {
+          throw new Error(`Missing or invalid 'reservations' field: ${JSON.stringify(reqBody)}`);
+        }
         const finalReservations: any = [];
         const dates = Object.keys(reqBody.reservations);
         for (var d = 0; d < dates.length; d++) {
