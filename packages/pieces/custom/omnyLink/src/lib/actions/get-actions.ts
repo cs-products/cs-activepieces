@@ -97,7 +97,7 @@ export const getActions = createAction({
 
         return {
           options: uniqueActions.map((item: any) => ({
-            label: item.actionName,
+            label: item.action,
             value: item,
           })),
         };
