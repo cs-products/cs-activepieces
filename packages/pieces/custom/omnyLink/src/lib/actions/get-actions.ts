@@ -151,9 +151,20 @@ export const getActions = createAction({
       const url = baseUrl + action?.endPoint;
 
       if (body) {
-        const reqHeaders = body["data"]["headers"]
-        const reqQueryParams = body["data"]['queryParams']
-        const reqBody = body['data']['body'];
+        let parsedData: any;
+
+        if (typeof body["data"] === "string") {
+          try {
+            parsedData = JSON.parse(body["data"]);
+          } catch (error) {
+            return { message: "Invalid JSON string in body.data", error: error };
+          }
+        } else {
+          parsedData = body["data"];
+        }
+        const reqHeaders = parsedData["headers"]
+        const reqQueryParams = parsedData['queryParams']
+        const reqBody = parsedData['body'];
         console.log("Req query params:::", reqQueryParams);
         if (reqHeaders) {
           const { ref, reqparams } = reqHeaders
@@ -170,7 +181,7 @@ export const getActions = createAction({
               if (httpResponse?.body) {
                 return httpResponse?.body
               } else {
-                return { message: "Send ReqHeaders in headers", data: body["data"] }
+                return { message: "Send ReqHeaders in headers", data: body["data"], httpsObject: httpResponse, method: method, actionMethod: action.method}
               }
             } else {
               return { message: "Method is Not Proper", data: action }
@@ -179,7 +190,7 @@ export const getActions = createAction({
             return { message: "Send Proper Ref and reqParams in Headers", data: reqHeaders }
           }
         } else {
-          return { message: "Send ReqHeaders in headers", data: body["data"] }
+          return { message: "Send ReqHeaders in headers::::", data: body}
         }
       } else {
         return 'Send Body From Catch Webhook'
