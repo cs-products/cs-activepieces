@@ -72,23 +72,56 @@ export const getResourceCategory = createAction({
     if (!body) {
       return {
         status: 400,
-        message: 'Request body missing!',
+        message: 'Request body missing!!!',
+        reqBodyres: body,
       };
     }
 
-    const reqBody: any = body?.['data']?.['body'];
+    // Parse the data string if it's a string
+    let parsedData;
+    try {
+      if (typeof body?.['data'] === 'string') {
+        parsedData = JSON.parse(body?.['data']);
+      } else {
+        parsedData = body?.['data'];
+      }
+    } catch (error) {
+      return {
+        status: 400,
+        message: 'Invalid JSON in data field',
+        reqBodyres: JSON.stringify(body),
+        error: String(error)
+      };
+    }
+
+    const reqBody: any = parsedData?.body;
 
     if (!reqBody) {
       return {
         status: 400,
-        message: 'Request Headers missing!',
+        message: 'Request body missing in parsed data',
+        reqBodyres: JSON.stringify(parsedData),
       };
     }
 
-    const decodedObject = await decode(reqBody?.data || '');
-    const leanBody: any = reqBody?.body;
+    // The data is in reqBody.data which is base64 encoded
+    let decodedObject;
+    try {
+      decodedObject = await decode(reqBody?.data || '');
+    } catch (error) {
+      return {
+        status: 400,
+        message: 'Failed to decode base64 data',
+        reqBodyres: reqBody?.data,
+        error: String(error)
+      };
+    }
+    
     const data: any = decodedObject;
     const creds = data?.['credentials'];
+
+    // Log the decoded data for debugging
+    console.log("Decoded data:", JSON.stringify(data));
 
     if (
       !data?.url ||
@@ -99,6 +132,7 @@ export const getResourceCategory = createAction({
       return {
         status: 400,
         message: 'Wrong Credentials/url',
+        decodedData: data
       };
     }
 

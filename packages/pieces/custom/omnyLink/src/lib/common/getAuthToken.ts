@@ -4,8 +4,8 @@ import { httpRequest } from "./httpRequestSender";
 
 export const getAuthToken = async(auth:any) => {
     console.log("auth", auth)
-    const {username , password} = auth;
-    if(!username || !password){
+    const {email , password} = auth;
+    if(!email || !password){
         return ''
     }else{
         // const baseUrl = 'https://unifiedplatform.clicsoft.dev'
@@ -14,7 +14,9 @@ export const getAuthToken = async(auth:any) => {
         console.log('baseUrl:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::', baseUrl);
         const url = baseUrl + '/auth/authenticate';
         const headers = { Accept: 'application/json' }
-        const httpResponse = await httpRequest({ method: HttpMethod.POST, url, body: auth, timeout: 5000, headers })
+        const authCopy = {...auth};
+        delete authCopy.baseUrl;
+        const httpResponse = await httpRequest({ method: HttpMethod.POST, url, body: authCopy, timeout: 5000, headers })
         if (httpResponse?.body?.token) {
             return httpResponse.body?.token
         } else {

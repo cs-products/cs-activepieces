@@ -6,9 +6,9 @@ import { getActions } from "./lib/actions/get-actions";
 export const omnyLinkAuth = PieceAuth.CustomAuth({
   description: 'Enter authentication details',
   props: {
-    username: Property.ShortText({
-      displayName: 'Username',
-      description: 'This is the Username you use to log into the server',
+    email: Property.ShortText({
+      displayName: 'Email',
+      description: 'This is the email you use to log into the server',
       required: true,
     }),
     password: PieceAuth.SecretText({

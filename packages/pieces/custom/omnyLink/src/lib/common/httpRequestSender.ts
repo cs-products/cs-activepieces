@@ -31,9 +31,13 @@ export const httpRequest = async (
 
   // Ensure headers are properly structured
   const finalHeaders = {
-    'Content-Type': 'application/json', // Ensure JSON content type
     ...headers, // Spread existing headers
   };
+  
+  // Only add Content-Type for requests that have a body
+  if (method !== HttpMethod.GET && method !== HttpMethod.DELETE) {
+    finalHeaders['Content-Type'] = 'application/json';
+  }
 
   // Create the base request object
   const loginRequest: HttpRequest = {
